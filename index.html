@@ -1,0 +1,1120 @@
+<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Young Professional Programma · Zig</title>
+<meta name="color-scheme" content="light dark">
+<script src="https://cdn.jsdelivr.net/npm/@azure/msal-browser@3.10.0/lib/msal-browser.min.js"></script>
+<style>
+:root{
+ --blue:#1F59FF;--blue-deep:#0B34D6;--blue-x:#0000D0;--cyan:#00D0FF;--navy:#1C2030;
+ --bg:#EDF3F9;--surface:#FFFFFF;--surface2:#F4F8FD;
+ --text:#1C2030;--dim:#5B6472;--border:#E4EBF4;
+ --shadow:0 8px 30px rgba(28,32,48,.08);
+ --green:#12B76A;--amber:#F79009;--red:#F04438;--grey:#98A2B3;--radius:22px;
+}
+@media (prefers-color-scheme: dark){
+ :root{--bg:#0E1220;--surface:#161B29;--surface2:#1E2434;--text:#EAF0FA;--dim:#98A4BC;--border:#2A3247;--shadow:0 8px 30px rgba(0,0,0,.4);}
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Safiro","Segoe UI",system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;font-size:14px;line-height:1.45}
+h1,h2,h3,h4{margin:0;font-weight:800;letter-spacing:-.01em}
+button{font-family:inherit;cursor:pointer;border:none}
+a{color:var(--blue)}
+.wrap{max-width:1240px;margin:0 auto;padding:0 20px 70px}
+.topbar{background:linear-gradient(120deg,var(--blue) 0%,var(--blue-deep) 60%,var(--blue-x) 100%);color:#fff;border-radius:0 0 28px 28px;padding:20px 0 18px;box-shadow:0 10px 30px rgba(11,52,214,.25)}
+.topbar .wrap{padding-bottom:0}
+.thead{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.logo{height:36px;filter:brightness(0) invert(1);flex:0 0 auto}
+.ttitle{flex:1 1 auto;min-width:200px}
+.ttitle h1{font-size:20px;line-height:1.1}
+.ttitle .sub{opacity:.92;font-size:12.5px;margin-top:3px;font-weight:600}
+.userchip{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.16);padding:7px 10px 7px 7px;border-radius:16px}
+.userchip .av{width:34px;height:34px;border-radius:50%;background:#fff;color:var(--blue);font-weight:800;display:flex;align-items:center;justify-content:center;font-size:13px}
+.userchip .un{font-weight:800;font-size:13px;line-height:1.1}
+.userchip .ur{font-size:11px;opacity:.9;text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.linkbtn{background:rgba(255,255,255,.2);color:#fff;border-radius:10px;padding:6px 11px;font-weight:700;font-size:12px}
+.store-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;padding:4px 9px;border-radius:999px;background:rgba(255,255,255,.16);color:#fff}
+.store-badge .sd{width:8px;height:8px;border-radius:50%;background:var(--cyan)}
+.store-badge.local .sd{background:#FFD166}
+.tabs{display:flex;gap:6px;margin-top:16px;flex-wrap:wrap}
+.tab{background:rgba(255,255,255,.12);color:#fff;padding:10px 18px;border-radius:14px 14px 0 0;font-weight:700;font-size:14px;opacity:.8}
+.tab.on{background:var(--bg);color:var(--blue);opacity:1}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 11px;font-size:12px;font-weight:700}
+.btn{background:var(--blue);color:#fff;border-radius:12px;padding:10px 16px;font-weight:700;font-size:13px;transition:.15s}
+.btn:hover{filter:brightness(1.07)}
+.btn.ghost{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+.btn.sm{padding:6px 11px;font-size:12px;border-radius:10px}
+.btn.cyan{background:var(--cyan);color:#062a33}
+.btn.block{width:100%;justify-content:center;display:flex;align-items:center;gap:9px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.muted{color:var(--dim)}
+input,select,textarea{font-family:inherit;font-size:13px;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:11px;padding:9px 11px;outline:none;width:100%}
+input:focus,textarea:focus,select:focus{border-color:var(--blue)}
+/* login */
+.login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(130deg,var(--blue) 0%,var(--blue-deep) 55%,var(--blue-x) 100%)}
+.loginbox{background:var(--surface);border-radius:26px;box-shadow:0 30px 80px rgba(0,0,0,.3);width:min(440px,100%);padding:30px 28px;text-align:center}
+.loginbox .lg{height:40px;margin-bottom:16px}
+.loginbox h1{font-size:22px}
+.loginbox p{color:var(--dim);font-size:13px;margin:6px 0 20px}
+.msbtn{background:#2F2F2F;color:#fff;border-radius:12px;padding:12px 16px;font-weight:700;font-size:14px;width:100%;display:flex;align-items:center;justify-content:center;gap:10px}
+.demo-sep{display:flex;align-items:center;gap:10px;color:var(--dim);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin:20px 0 14px}
+.demo-sep::before,.demo-sep::after{content:"";flex:1;height:1px;background:var(--border)}
+.demorow{display:flex;flex-direction:column;gap:8px;text-align:start}
+.demobtn{display:flex;align-items:center;gap:11px;background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:11px 13px;color:var(--text);font-weight:700;font-size:13px;transition:.14s}
+.demobtn:hover{border-color:var(--blue);transform:translateY(-1px)}
+.demobtn .av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#fff;flex:0 0 auto}
+.demobtn small{display:block;font-weight:600;color:var(--dim);font-size:11px}
+/* planning */
+.phaserow{display:flex;gap:10px;overflow-x:auto;padding:16px 0 6px}
+.phase{flex:0 0 auto;min-width:150px;max-width:220px;border-radius:16px;padding:12px 14px;color:#fff;cursor:pointer;transition:.15s;border:0}
+.phase:hover{transform:translateY(-2px)}
+.phase .ph{font-size:11px;font-weight:800;opacity:.9;text-transform:uppercase;letter-spacing:.04em}
+.phase .pt{font-size:13px;font-weight:700;margin-top:3px;line-height:1.25}
+.phase .pw{font-size:11px;opacity:.85;margin-top:6px}
+.filters{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:16px 0}
+.filters .grow{flex:1 1 200px}
+.chk{display:inline-flex;align-items:center;gap:7px;font-weight:600;font-size:13px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:8px 12px;cursor:pointer}
+.chk input{width:auto}
+.week{margin-bottom:14px;overflow:hidden}
+.week.now{outline:2px solid var(--blue);outline-offset:0}
+.whead{display:flex;align-items:center;gap:12px;padding:13px 18px;border-bottom:1px solid var(--border)}
+.wstripe{width:8px;align-self:stretch;border-radius:8px;min-height:34px}
+.wtitle{font-weight:800;font-size:15px}
+.wsub{font-size:12px;color:var(--dim);font-weight:600}
+.nowbadge{background:var(--blue);color:#fff;font-size:11px;font-weight:800;padding:4px 10px;border-radius:999px}
+.days{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--border)}
+.day{background:var(--surface);padding:11px 12px;min-height:108px;cursor:pointer;transition:.12s;display:flex;flex-direction:column;gap:5px;border:0;text-align:start;font:inherit;color:inherit;width:100%}
+.day:hover{background:var(--surface2)}
+.day.na{opacity:.5;cursor:default}
+.day.na:hover{background:var(--surface)}
+.day.vervallen{opacity:.5}
+.day.vervallen .dtitle{text-decoration:line-through;text-decoration-color:var(--grey)}
+.dtop{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.dname{font-size:11px;font-weight:800;color:var(--dim);text-transform:uppercase;letter-spacing:.04em}
+.ddate{font-size:10px;color:var(--dim);font-weight:600}
+.dtitle{font-size:12.5px;font-weight:600;line-height:1.3;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.dfoot{margin-top:auto;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto}
+.mini{font-size:10px;font-weight:800;padding:2px 7px;border-radius:999px;display:inline-flex;gap:3px;align-items:center}
+.mini.fb{background:rgba(31,89,255,.12);color:var(--blue)}
+.mini.cal{background:rgba(0,208,255,.16);color:#0a7c93}
+.mini.att{background:rgba(18,183,106,.14);color:#0a7a48}
+.mini.trn{background:rgba(0,208,255,.16);color:#0a7c93}
+.mini.loc{background:rgba(0,208,255,.16);color:#0a7c93}
+.mini.locon{background:var(--surface2);color:var(--dim)}
+/* drawer */
+.scrim{position:fixed;inset:0;background:rgba(10,15,30,.45);opacity:0;pointer-events:none;transition:.2s;z-index:40}
+.scrim.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;height:100%;width:min(500px,94vw);background:var(--bg);box-shadow:-10px 0 40px rgba(0,0,0,.25);transform:translateX(100%);transition:.24s cubic-bezier(.4,0,.2,1);z-index:41;display:flex;flex-direction:column}
+.drawer.on{transform:translateX(0)}
+.dhead{background:var(--surface);border-bottom:1px solid var(--border);padding:18px 20px}
+.dbody{padding:18px 20px;overflow-y:auto;flex:1}
+.x{background:var(--surface2);border:1px solid var(--border);border-radius:10px;width:34px;height:34px;font-size:18px;color:var(--text);display:flex;align-items:center;justify-content:center}
+.seg{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 4px}
+.segb{padding:7px 12px;border-radius:10px;font-weight:700;font-size:12px;background:var(--surface);border:1px solid var(--border);color:var(--text)}
+.fbitem{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 13px;margin-bottom:10px}
+.fbtop{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.avatar{width:28px;height:28px;border-radius:50%;background:var(--blue);color:#fff;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.stars{color:var(--amber);font-size:13px;letter-spacing:1px}
+.rate span{cursor:pointer}
+.sect{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--dim);margin:18px 0 8px}
+/* dashboard */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:18px 0}
+.kpi{padding:16px 18px}
+.kpi .n{font-size:28px;font-weight:800;line-height:1}
+.kpi .l{font-size:12px;color:var(--dim);font-weight:700;margin-top:6px}
+.tgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.tcard{padding:16px 18px;cursor:pointer;transition:.14s}
+.tcard:hover{transform:translateY(-2px);border-color:var(--blue)}
+.tcard .th{display:flex;align-items:center;gap:11px;margin-bottom:12px}
+.tcard .big{width:44px;height:44px;font-size:16px}
+.progrow{display:flex;align-items:center;gap:12px;margin:9px 0}
+.progrow .pl{width:210px;font-size:12.5px;font-weight:700;flex:0 0 auto}
+.bar{flex:1;height:10px;background:var(--surface2);border-radius:999px;overflow:hidden}
+.bar > i{display:block;height:100%;border-radius:999px}
+.tstat{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px}
+.tstat div{font-size:12px}
+.tstat b{font-size:16px;display:block}
+.sh{display:flex;align-items:center;gap:11px;padding:11px 14px;border-bottom:1px solid var(--border)}
+.tag{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;padding:3px 9px;border-radius:999px}
+.tag.mgr{background:rgba(31,89,255,.14);color:var(--blue)}
+.tag.stk{background:rgba(0,208,255,.16);color:#0a7c93}
+.tag.tr{background:rgba(18,183,106,.14);color:#0a7a48}
+.empty{text-align:center;color:var(--dim);padding:50px 20px;font-weight:600}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;padding:12px 20px;border-radius:14px;font-weight:700;box-shadow:0 10px 30px rgba(0,0,0,.3);opacity:0;pointer-events:none;transition:.25s;z-index:60;max-width:90vw;text-align:center}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.hint{background:var(--surface2);border:1px dashed var(--border);border-radius:14px;padding:12px 14px;font-size:12.5px;color:var(--dim);margin:14px 0}
+.backbtn{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:8px 13px;font-weight:700;font-size:13px;color:var(--text);margin:16px 0 4px}
+.itsetup{margin-top:20px;text-align:start;background:var(--surface2);border:1px solid var(--border);border-radius:14px}
+.itsetup summary{cursor:pointer;font-weight:800;font-size:12.5px;padding:12px 14px;color:var(--blue);list-style:none;display:flex;align-items:center;gap:7px}
+.itsetup summary::-webkit-details-marker{display:none}
+.itsetup summary::before{content:"⚙";font-size:14px}
+.itsetup[open] summary{border-bottom:1px solid var(--border)}
+.itsetup ol{margin:12px 0;padding-inline-start:24px}
+.itsetup li{font-size:12px;line-height:1.55;margin-bottom:9px;color:var(--text)}
+.itsetup code{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:1px 5px;font-size:11px;word-break:break-all}
+.itsetup .free{margin:0 14px 12px;font-size:11px;color:var(--green);font-weight:700;background:rgba(18,183,106,.1);border-radius:9px;padding:8px 10px}
+.admgrid{display:grid;grid-template-columns:1fr 1fr auto auto;gap:8px;align-items:center}
+.admfilter{display:grid;grid-template-columns:1fr 200px;gap:8px;align-items:center;margin-bottom:12px}
+/* ================= Responsief: tablets & telefoons ================= */
+@media(max-width:1024px){
+ .wrap{padding:0 16px 64px}
+ .progrow .pl{width:170px}
+ .phaserow{-webkit-overflow-scrolling:touch}
+}
+@media(max-width:720px){
+ .wrap{padding:0 14px 60px}
+ .topbar{padding:16px 0 14px;border-radius:0 0 22px 22px}
+ .thead{gap:12px}
+ .logo{height:30px}
+ .ttitle{min-width:140px}
+ .ttitle h1{font-size:18px}
+ .tabs{gap:5px;margin-top:14px}
+ .tab{padding:9px 14px;font-size:13px}
+ .days{grid-template-columns:repeat(2,1fr)}
+ .day{min-height:96px}
+ .progrow{gap:9px}
+ .progrow .pl{width:120px;font-size:12px}
+ .kpi .n{font-size:24px}
+ .drawer{width:min(560px,96vw)}
+ .dhead,.dbody{padding-left:16px;padding-right:16px}
+ .loginbox{padding:26px 18px}
+ /* Voorkomt dat iOS/Safari inzoomt zodra je een invoerveld aantikt */
+ input,select,textarea{font-size:16px}
+ .admgrid{grid-template-columns:1fr 1fr}
+ .admfilter{grid-template-columns:1fr 160px}
+}
+@media(max-width:460px){
+ .wrap{padding:0 12px 56px}
+ .thead{gap:10px}
+ .userchip{padding:6px 9px 6px 6px}
+ .userchip .un{font-size:12px}
+ .tab{padding:8px 12px;font-size:12.5px}
+ .day{min-height:88px;padding:9px 10px}
+ .dtitle{-webkit-line-clamp:4}
+ .drawer{width:100vw}
+ .kpis{gap:10px}
+ .filters{gap:8px}
+ .btn.sm{padding:7px 12px}
+ .admgrid{grid-template-columns:1fr}
+ .admfilter{grid-template-columns:1fr}
+}
+</style></head><body>
+<div id="app"></div>
+<div class="scrim" id="scrim" data-act="closeDrawer"></div>
+<div class="drawer" id="drawer"><div id="drawerInner"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+/* ================================================================
+   Young Professional Programma — Portaal · Zig
+   Web-app met Microsoft-SSO (MSAL) en rol-gebaseerde weergave.
+   - Trainee: eigen planning, status/aanwezigheid, feedback, Outlook.
+   - Manager: dashboard met voortgang per trainee + feedback per sessie.
+   Draait standaard in DEMO-modus (voorbeeldprofielen). Zodra IT de
+   Entra client-ID invult, logt iedereen in via echte Microsoft-SSO tegen
+   de Zig-tenant (Zig AD) en werkt de app met Microsoft Graph (agenda +
+   SharePoint-opslag). Toegang is beperkt tot een geselecteerde groep.
+   Alles valt binnen de bestaande Microsoft 365-licenties — geen extra kosten.
+   ================================================================ */
+
+const CONFIG = {
+  auth: {
+    enabled: true,                  // SSO staat klaar; wordt actief zodra clientId is ingevuld
+    clientId: "",                   // <<< IT vult hier de Application (client) ID in uit de Entra app-registratie.
+                                    //     Kan ook zonder de code te wijzigen via de URL:
+                                    //     ...YP-Portaal.html?clientId=<GUID>
+    tenantId: "zig.nl"              // Zig-tenant (mag ook de Directory/tenant-ID GUID zijn)
+  },
+  graph: { scopes: ["User.Read","Calendars.ReadWrite","Sites.ReadWrite.All"] },
+  sharepoint: {                     // gedeelde opslag via Microsoft Graph — site: Zig|Academy
+    siteHost: "zigsoftware.sharepoint.com",
+    sitePath: "/teams/Academy",
+    progressList: "YP_Progress",
+    feedbackList: "YP_Feedback",
+    accessList: "YP_Access",       // gedeelde lijst met toegestane gebruikers (beheermodule)
+    assignList: "YP_Assign",       // gedeelde lijst met trainer-toewijzing per sessie (Wi, Day, TrainerEmail, TrainerName)
+    configList: "YP_Config"        // gedeelde config (o.a. aanpasbare jaarplanning) — item Title 'planning', veld Data (JSON)
+  },
+  // --- Toegang beperken tot een selecte groep managers en medewerkers ---
+  // Kosteloos: app-registratie en SSO vallen onder Microsoft Entra ID Free
+  // (inbegrepen in de M365-licenties die Zig al heeft). Twee lagen, combineerbaar:
+  //  1) HARDE grens in Entra: op de bedrijfstoepassing 'Toewijzing vereist = Ja'
+  //     zetten en de gekozen personen toewijzen (aanbevolen).
+  //  2) In-app vangnet: 'allowlist' hieronder vullen met e-mailadressen. Blijft de
+  //     lijst leeg, dan vertrouwt de app op de Entra-toewijzing.
+  access: {
+    restrict: true,                 // true = alleen toegestane personen/rollen komen binnen
+    allowedRoles: ["Manager","Trainer","Young Professional"],  // Entra app-rollen die toegang geven (indien in gebruik)
+    allowlist: [                    // optioneel: e-mails met toegang (naast Entra-toewijzing)
+      // "voornaam.achternaam@zig.nl",
+    ],
+    contact: "jarno.cislo@zig.nl"   // waar de knop 'Toegang aanvragen' heen mailt
+  },
+  managers: [                       // e-mails met managerrol (naast Entra app-rol "Manager")
+    "jarno.cislo@zig.nl","andrew.delahaije@zig.nl","leonie.ginus-dejong@zig.nl"
+  ],
+  trainers: [                       // e-mails met trainerrol (naast Entra app-rol "Trainer" of de beheerlijst)
+    // "trainer@zig.nl"
+  ],
+  tz: "W. Europe Standard Time"
+};
+
+/* Laat IT de app configureren zonder de code te wijzigen, bv. voor een pilot:
+   ...YP-Portaal.html?clientId=<GUID>&tenantId=<zig.nl of GUID>
+   De waarde wordt in deze browser onthouden. Een client-ID is openbaar/niet-geheim. */
+(function(){try{
+  const qs=new URLSearchParams(location.search);
+  if(qs.get("clientId"))localStorage.setItem("yp_clientId",qs.get("clientId"));
+  if(qs.get("tenantId"))localStorage.setItem("yp_tenantId",qs.get("tenantId"));
+  const cid=qs.get("clientId")||localStorage.getItem("yp_clientId");
+  const tid=qs.get("tenantId")||localStorage.getItem("yp_tenantId");
+  if(cid)CONFIG.auth.clientId=cid;
+  if(tid)CONFIG.auth.tenantId=tid;
+}catch(e){}})();
+
+const LOGO="data:image/png;base64,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";
+const SEED={"cohortName":"Young Professionals","cohortStart":"2026-08-31","phases":[{"id":0,"head":"Maand 1 t/m 2","title":"Basis leggen (leren & observeren)","startW":0,"endW":8,"color":"#0B34D6"},{"id":1,"head":"Maand 3 & 4","title":"Toepassen 'eerste uitvoering' & beginnend zelfstandigheid","startW":9,"endW":16,"color":"#1F59FF"},{"id":2,"head":"Maand 5 & 6","title":"Zelfstandig aan de slag op het specifieke domein","startW":17,"endW":24,"color":"#3B78FF"},{"id":3,"head":"Maand 7 & 8","title":"Het nemen van eigenaarschap","startW":25,"endW":33,"color":"#1F9BFF"},{"id":4,"head":"Maand 9 & 10","title":"Zelfstandig waarde toevoegen bij de klant","startW":34,"endW":42,"color":"#00BEE6"},{"id":5,"head":"Maand 11 & 12","title":"Afronding en opmars naar consultancy werk","startW":43,"endW":51,"color":"#00D0FF"}],"weeks":[{"i":0,"w":"Week 36","d":"31 aug - 6 sep","m":"September","p":0,"s":[{"t":"n.v.t.","na":true},{"t":"Introductiedag - Welkom bij Zig (organisatie breed)","na":false},{"t":"Introductiedag - Zig leren begrijpen (organisatie breed)","na":false},{"t":"(OCHTEND) Introductie - Young Professional programma\n(MIDDAG) Introductietraining Maintenance","na":false},{"t":"Introductietraining Customer","na":false}]},{"i":1,"w":"Week 37","d":"7-13 sep","m":"September","p":0,"s":[{"t":"Introductietraining Operations","na":false},{"t":"Ochtend: Introductietraining Matching\nMiddag: Welkom bij Zig E-Learning","na":false},{"t":"Ochtend: Introductietraining Insights\nMiddag: Welkom bij Zig E-Learning","na":false},{"t":"Algemene onboarding training vanuit Zig Academy (met corporaties aanwezig)","na":false},{"t":"HELE KENNISDAG SERVICES - Inlcusief AI Summerschool","na":false}]},{"i":2,"w":"Week 38","d":"14-20 sep","m":"September","p":0,"s":[{"t":"Kennismaking support incl. Buddy\nKennismaking Manager support\nMB-800 certificering behalen als \"team\"","na":false},{"t":"MB-800 certificering behalen als \"team\"","na":false},{"t":"MB-800 certificering behalen als \"team\"","na":false},{"t":"MB-800 certificering behalen als \"team\"","na":false},{"t":"KJENNING TRAINING Woningcorporaties (9 - 17)","na":false}]},{"i":3,"w":"Week 39","d":"21-27 sep","m":"September","p":0,"s":[{"t":"MB-800 certificering behalen als \"team\"","na":false},{"t":"MB-800 certificering behalen als \"team\"","na":false},{"t":"MB-800 certificering behalen als \"team\"","na":false},{"t":"Trainingsdag MB-800 (Deepdive de materie in)","na":false},{"t":"HALVE KENNISDAG SERVICES + FLEX MIDDAG","na":false}]},{"i":4,"w":"Week 40","d":"28 sep - 4 okt","m":"Oktober","p":0,"s":[{"t":"Support-dag","na":false},{"t":"Support-dag","na":false},{"t":"Support-dag","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)","na":false},{"t":"Uitwerktijd, E-learning, Mb800 en \"hybride/flexibel\" werken","na":false}]},{"i":5,"w":"Week 41","d":"5-11 okt","m":"Oktober","p":0,"s":[{"t":"Support-dag","na":false},{"t":"Support-dag","na":false},{"t":"Uitwerktijd, E-learning, Mb800 en \"hybride/flexibel\" werken","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)","na":false},{"t":"HELE KENNISDAG SERVICES","na":false}]},{"i":6,"w":"Week 42","d":"12-18 okt","m":"Oktober","p":0,"s":[{"t":"Support-dag","na":false},{"t":"Support-dag","na":false},{"t":"Support-dag","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)","na":false},{"t":"Uitwerktijd, E-learning, Mb800 en \"hybride/flexibel\" werken","na":false}]},{"i":7,"w":"Week 43","d":"19-25 okt","m":"Oktober","p":0,"s":[{"t":"Support-dag","na":false},{"t":"Support-dag","na":false},{"t":"Uitwerktijd, E-learning, Mb800 en \"hybride/flexibel\" werken. MBTI E-learning maken en vragenlijst.","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)\n+ Intervisie","na":false},{"t":"HALVE KENNISDAG SERVICES + FLEX MIDDAG","na":false}]},{"i":8,"w":"Week 44","d":"26 okt - 1 nov","m":"Oktober","p":0,"s":[{"t":"Support-dag","na":false},{"t":"Support-dag","na":false},{"t":"Support-dag","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)","na":false},{"t":"Uitwerktijd, E-learning, Mb800 en \"hybride/flexibel\" werken. MBTI E-learning maken en vragenlijst.","na":false}]},{"i":9,"w":"Week 45","d":"2-8 nov","m":"November","p":1,"s":[{"t":"Support-dag","na":false},{"t":"Support-dag","na":false},{"t":"MBTI deel 1 (13 - 15.30) + Hybride MB-800, uitwerktijd","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)","na":false},{"t":"HELE KENNISDAG SERVICES","na":false}]},{"i":10,"w":"Week 46","d":"9-15 nov","m":"November","p":1,"s":[{"t":"Support-dag","na":false},{"t":"Training vanuit support (13 - 15.30): \"De Dagelijkse Supportsoap\"","na":false},{"t":"Support-dag","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)","na":false},{"t":"Uitwerktijd, E-learning, Mb800 en \"hybride/flexibel\" werken","na":false}]},{"i":11,"w":"Week 47","d":"16-22 nov","m":"November","p":1,"s":[{"t":"Support-dag","na":false},{"t":"Support-dag","na":false},{"t":"Uitwerktijd, E-learning, Mb800 en \"hybride/flexibel\" werken","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)\n+ Intervisie","na":false},{"t":"HALVE KENNISDAG SERVICES + FLEX MIDDAG","na":false}]},{"i":12,"w":"Week 48","d":"23-29 nov","m":"November","p":1,"s":[{"t":"STAGE CORPORATIE","na":false},{"t":"STAGE CORPORATIE","na":false},{"t":"STAGE CORPORATIE","na":false},{"t":"STAGE CORPORATIE","na":false},{"t":"STAGE CORPORATIE","na":false}]},{"i":13,"w":"Week 49","d":"30 nov - 6 dec","m":"December","p":1,"s":[{"t":"Support-dag","na":false},{"t":"Support-dag","na":false},{"t":"Uitwerktijd, E-learning, Mb800 en \"hybride/flexibel\" werken","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)","na":false},{"t":"HELE KENNISDAG SERVICES","na":false}]},{"i":14,"w":"Week 50","d":"7-13 dec","m":"December","p":1,"s":[{"t":"Support-dag","na":false},{"t":"Support-dag","na":false},{"t":"Support-dag","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)","na":false},{"t":"Uitwerktijd, E-learning, Mb800 en \"hybride/flexibel\" werken","na":false}]},{"i":15,"w":"Week 51","d":"14-20 dec","m":"December","p":1,"s":[{"t":"Support-dag","na":false},{"t":"Support-dag","na":false},{"t":"Uitwerktijd, E-learning, Mb800 en \"hybride/flexibel\" werken","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)\n+ Intervisie","na":false},{"t":"HALVE KENNISDAG SERVICES + FLEX MIDDAG","na":false}]},{"i":16,"w":"Week 52","d":"21-27 dec","m":"December","p":1,"s":[{"t":"Support-dag","na":false},{"t":"Support-dag","na":false},{"t":"Support-dag","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)","na":false},{"t":"Domeinkeuze gemaakt & MB-800 afgerond","na":false}]},{"i":17,"w":"Week 1","d":"4-10 jan","m":"Januari","p":2,"s":[{"t":"Meelopen met consultancy buddy op specifiek gekozen domein","na":false},{"t":"Support-dag op specifiek gekozen domein","na":false},{"t":"Support-dag","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)","na":false},{"t":"Uitwerktijd, \"hybride/flexibel\" werken","na":false}]},{"i":18,"w":"Week 2","d":"11-17 jan","m":"Januari","p":2,"s":[{"t":"Meelopen met consultancy buddy op specifiek gekozen domein","na":false},{"t":"Support-dag op specifiek gekozen domein","na":false},{"t":"Training Stakholdermanagement 13:00 - 17:00","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)","na":false},{"t":"HELE KENNISDAG SERVICES","na":false}]},{"i":19,"w":"Week 3","d":"18-24 jan","m":"Januari","p":2,"s":[{"t":"Meelopen met consultancy buddy op specifiek gekozen domein","na":false},{"t":"Support-dag op specifiek gekozen domein","na":false},{"t":"Support-dag op specifiek gekozen domein","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)\n+ Intervisie","na":false},{"t":"Uitwerktijd, \"hybride/flexibel\" werken","na":false}]},{"i":20,"w":"Week 4","d":"25-31 jan","m":"Januari","p":2,"s":[{"t":"Meelopen met consultancy buddy op specifiek gekozen domein","na":false},{"t":"'Productowner for a day\"","na":false},{"t":"Support-dag op specifiek gekozen domein","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)","na":false},{"t":"HALVE KENNISDAG SERVICES + FLEX MIDDAG","na":false}]},{"i":21,"w":"Week 5","d":"1-7 feb","m":"Februari","p":2,"s":[{"t":"Meelopen met consultancy buddy op specifiek gekozen domein","na":false},{"t":"Support-dag op specifiek gekozen domein","na":false},{"t":"MBTI deel 2 (13 - 15.30) + Hybride uitwerktijd","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)","na":false},{"t":"Uitwerktijd, \"hybride/flexibel\" werken","na":false}]},{"i":22,"w":"Week 6","d":"8-14 feb","m":"Februari","p":2,"s":[{"t":"Meelopen met consultancy buddy op specifiek gekozen domein","na":false},{"t":"Support-dag op specifiek gekozen domein","na":false},{"t":"Support-dag op specifiek gekozen domein","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)","na":false},{"t":"HELE KENNISDAG SERVICES","na":false}]},{"i":23,"w":"Week 7","d":"15-21 feb","m":"Februari","p":2,"s":[{"t":"Meelopen met consultancy buddy op specifiek gekozen domein","na":false},{"t":"Support-dag op specifiek gekozen domein","na":false},{"t":"Uitwerktijd, \"hybride/flexibel\" werken","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)\n+ Intervisie","na":false},{"t":"'SME for a day\"","na":false}]},{"i":24,"w":"Week 8","d":"22-28 feb","m":"Februari","p":2,"s":[{"t":"Meelopen met consultancy buddy op specifiek gekozen domein","na":false},{"t":"Support-dag op specifiek gekozen domein","na":false},{"t":"Support-dag op specifiek gekozen domein","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)","na":false},{"t":"HALVE KENNISDAG SERVICES + FLEX MIDDAG","na":false}]},{"i":25,"w":"Week 9","d":"1-7 mrt","m":"Maart","p":3,"s":[{"t":"Meedoen met consultancy buddy op specifiek gekozen domein","na":false},{"t":"'Sales for a day\"","na":false},{"t":"VOORBEREIDING STAGE CORPORATIE","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)","na":false},{"t":"Uitwerktijd, \"hybride/flexibel\" werken","na":false}]},{"i":26,"w":"Week 10","d":"8-14 mrt","m":"Maart","p":3,"s":[{"t":"STAGE CORPORATIE (ONBETAALD WERK)","na":false},{"t":"STAGE CORPORATIE (ONBETAALD WERK)","na":false},{"t":"STAGE CORPORATIE (ONBETAALD WERK)","na":false},{"t":"STAGE CORPORATIE (ONBETAALD WERK)","na":false},{"t":"HELE KENNISDAG SERVICES","na":false}]},{"i":27,"w":"Week 11","d":"15-21 mrt","m":"Maart","p":3,"s":[{"t":"Meedoen met consultancy buddy op specifiek gekozen domein","na":false},{"t":"Support-dag op specifiek gekozen domein","na":false},{"t":"Meelopen met Business Back-office t.a.v. projectaanpak","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)\n+ Intervisie","na":false},{"t":"You - Personal Development Dag 1","na":false}]},{"i":28,"w":"Week 12","d":"22-28 mrt","m":"Maart","p":3,"s":[{"t":"Meedoen met consultancy buddy op specifiek gekozen domein","na":false},{"t":"Support-dag op specifiek gekozen domein","na":false},{"t":"Meedoen met consultancy buddy op specifiek gekozen domein","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)","na":false},{"t":"HALVE KENNISDAG SERVICES + FLEX MIDDAG","na":false}]},{"i":29,"w":"Week 13","d":"29 mrt - 4 apr","m":"Maart","p":3,"s":[{"t":"Meedoen met consultancy buddy op specifiek gekozen domein","na":false},{"t":"Support-dag op specifiek gekozen domein","na":false},{"t":"Meelopen met projectmanagement t.a.v. projectaanpak","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)","na":false},{"t":"You - Personal Development Dag 2","na":false}]},{"i":30,"w":"Week 14","d":"5-11 apr","m":"April","p":3,"s":[{"t":"Meedoen met consultancy buddy op specifiek gekozen domein","na":false},{"t":"Support-dag op specifiek gekozen domein","na":false},{"t":"Meedoen met consultancy buddy op specifiek gekozen domein","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)","na":false},{"t":"HELE KENNISDAG SERVICES","na":false}]},{"i":31,"w":"Week 15","d":"12-18 apr","m":"April","p":3,"s":[{"t":"Meedoen met consultancy buddy op specifiek gekozen domein","na":false},{"t":"Support-dag op specifiek gekozen domein","na":false},{"t":"Meelopen met projectmanagement t.a.v. projectaanpak","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)","na":false},{"t":"Uitwerktijd, \"hybride/flexibel\" werken","na":false}]},{"i":32,"w":"Week 16","d":"19-25 apr","m":"April","p":3,"s":[{"t":"Meedoen met consultancy buddy op specifiek gekozen domein","na":false},{"t":"Support-dag op specifiek gekozen domein","na":false},{"t":"Meedoen met consultancy buddy op specifiek gekozen domein","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)","na":false},{"t":"HALVE KENNISDAG SERVICES + FLEX MIDDAG","na":false}]},{"i":33,"w":"Week 17","d":"26 apr - 2 mei","m":"April","p":3,"s":[{"t":"Meedoen met consultancy buddy op specifiek gekozen domein","na":false},{"t":"Support-dag op specifiek gekozen domein","na":false},{"t":"Meelopen met projectmanagement t.a.v. projectaanpak","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)","na":false},{"t":"OVERDRACHT NAAR CSM o.b.v. retrospective presentatie","na":false}]},{"i":34,"w":"Week 18","d":"3-9 mei","m":"Mei","p":4,"s":[{"t":"Meedoen met consultancy buddy op specifiek gekozen domein","na":false},{"t":"'Zelfstandig consultancy dag\"","na":false},{"t":"Support-dag op specifiek gekozen domein","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)\n+ Intervisie","na":false},{"t":"HELE KENNISDAG SERVICES","na":false}]},{"i":35,"w":"Week 19","d":"10-16 mei","m":"Mei","p":4,"s":[{"t":"Meedoen met consultancy buddy op specifiek gekozen domein","na":false},{"t":"'Zelfstandig consultancy dag\"","na":false},{"t":"Support-dag op specifiek gekozen domein","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)","na":false},{"t":"INTERNE \"Services\" OPDRACHT","na":false}]},{"i":36,"w":"Week 20","d":"17-23 mei","m":"Mei","p":4,"s":[{"t":"Meedoen met consultancy buddy op specifiek gekozen domein","na":false},{"t":"'Zelfstandig consultancy dag\"","na":false},{"t":"Support-dag op specifiek gekozen domein","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)","na":false},{"t":"HALVE KENNISDAG SERVICES + FLEX MIDDAG","na":false}]},{"i":37,"w":"Week 21","d":"24-30 mei","m":"Mei","p":4,"s":[{"t":"Meedoen met consultancy buddy op specifiek gekozen domein","na":false},{"t":"'Zelfstandig consultancy dag\"","na":false},{"t":"Support-dag op specifiek gekozen domein","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)","na":false},{"t":"INTERNE \"Services\" OPDRACHT","na":false}]},{"i":38,"w":"Week 22","d":"31 mei - 6 jun","m":"Juni","p":4,"s":[{"t":"Meedoen met consultancy buddy op specifiek gekozen domein","na":false},{"t":"'Zelfstandig consultancy dag\"","na":false},{"t":"Support-dag op specifiek gekozen domein","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)","na":false},{"t":"HELE KENNISDAG SERVICES","na":false}]},{"i":39,"w":"Week 23","d":"7-13 jun","m":"Juni","p":4,"s":[{"t":"Meedoen met consultancy buddy op specifiek gekozen domein","na":false},{"t":"'Zelfstandig consultancy dag\"","na":false},{"t":"Support-dag op specifiek gekozen domein","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)","na":false},{"t":"INTERNE \"Services\" OPDRACHT","na":false}]},{"i":40,"w":"Week 24","d":"14-20 jun","m":"Juni","p":4,"s":[{"t":"Meedoen met consultancy buddy op specifiek gekozen domein","na":false},{"t":"'Zelfstandig consultancy dag\"","na":false},{"t":"Support-dag op specifiek gekozen domein","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)","na":false},{"t":"HALVE KENNISDAG SERVICES + FLEX MIDDAG","na":false}]},{"i":41,"w":"Week 25","d":"21-27 jun","m":"Juni","p":4,"s":[{"t":"Meedoen met consultancy buddy op specifiek gekozen domein","na":false},{"t":"'Zelfstandig consultancy dag\"","na":false},{"t":"Support-dag op specifiek gekozen domein","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)","na":false},{"t":"INTERNE \"Services\" OPDRACHT","na":false}]},{"i":42,"w":"Week 26","d":"28 jun - 4 jul","m":"Juni","p":4,"s":[{"t":"Meedoen met consultancy buddy op specifiek gekozen domein","na":false},{"t":"'Zelfstandig consultancy dag\"","na":false},{"t":"Support-dag op specifiek gekozen domein","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)\n+ Intervisie","na":false},{"t":"HELE KENNISDAG SERVICES","na":false}]},{"i":43,"w":"Week 27","d":"5-11 jul","m":"Juli","p":5,"s":[{"t":"Meedoen met consultancy buddy op specifiek gekozen domein","na":false},{"t":"'Zelfstandig consultancy dag\"","na":false},{"t":"'Zelfstandig consultancy dag\"","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)","na":false},{"t":"INTERNE \"Services\" OPDRACHT","na":false}]},{"i":44,"w":"Week 28","d":"12-18 jul","m":"Juli","p":5,"s":[{"t":"Meedoen met consultancy buddy op specifiek gekozen domein","na":false},{"t":"'Zelfstandig consultancy dag\"","na":false},{"t":"'Zelfstandig consultancy dag\"","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)","na":false},{"t":"HALVE KENNISDAG SERVICES + FLEX MIDDAG","na":false}]},{"i":45,"w":"Week 29","d":"19-25 jul","m":"Juli","p":5,"s":[{"t":"Meedoen met consultancy buddy op specifiek gekozen domein","na":false},{"t":"'Zelfstandig consultancy dag\"","na":false},{"t":"'Zelfstandig consultancy dag\"","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)","na":false},{"t":"Zelfstudie, uitwerken en kennisverbreding","na":false}]},{"i":46,"w":"Week 30","d":"26 jul - 1 aug","m":"Juli","p":5,"s":[{"t":"Meedoen met consultancy buddy op specifiek gekozen domein","na":false},{"t":"'Zelfstandig consultancy dag\"","na":false},{"t":"'Zelfstandig consultancy dag\"","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)","na":false},{"t":"HELE KENNISDAG SERVICES","na":false}]},{"i":47,"w":"Week 31","d":"2-8 aug","m":"Augustus","p":5,"s":[{"t":"Meedoen met consultancy buddy op specifiek gekozen domein","na":false},{"t":"'Zelfstandig consultancy dag\"","na":false},{"t":"'Zelfstandig consultancy dag\"","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)","na":false},{"t":"Zelfstudie, uitwerken en kennisverbreding","na":false}]},{"i":48,"w":"Week 32","d":"9-15 aug","m":"Augustus","p":5,"s":[{"t":"Meedoen met consultancy buddy op specifiek gekozen domein","na":false},{"t":"'Zelfstandig consultancy dag\"","na":false},{"t":"'Zelfstandig consultancy dag\"","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)","na":false},{"t":"HALVE KENNISDAG SERVICES + FLEX MIDDAG","na":false}]},{"i":49,"w":"Week 33","d":"16-22 aug","m":"Augustus","p":5,"s":[{"t":"Meedoen met consultancy buddy op specifiek gekozen domein","na":false},{"t":"'Zelfstandig consultancy dag\"","na":false},{"t":"'Zelfstandig consultancy dag\"","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)","na":false},{"t":"Zelfstudie, uitwerken en kennisverbreding","na":false}]},{"i":50,"w":"Week 34","d":"23-29 aug","m":"Augustus","p":5,"s":[{"t":"Meedoen met consultancy buddy op specifiek gekozen domein","na":false},{"t":"'Zelfstandig consultancy dag\"","na":false},{"t":"'Zelfstandig consultancy dag\"","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)","na":false},{"t":"Zelfstudie, uitwerken en kennisverbreding","na":false}]},{"i":51,"w":"Week 35","d":"30 aug - 5 sep","m":"Augustus","p":5,"s":[{"t":"You - Personal Development Dag 3","na":false},{"t":"You - Personal Development Dag 4","na":false},{"t":"'Zelfstandig consultancy dag\"","na":false},{"t":"ALGEMENE SUPPORT DAG (Gehele team aanwezig)\n+ Intervisie","na":false},{"t":"Zelfstudie, uitwerken en kennisverbreding","na":false}]}],"stakeholders":[{"id":"sh1","name":"Andrew de la Haije","role":"CEO","email":"andrew.delahaije@zig.nl","type":"stakeholder"},{"id":"sh2","name":"Jarno Cislo","role":"COO","email":"Jarno.Cislo@zig.nl","type":"manager"},{"id":"sh3","name":"Leonie Ginus - de Jong","role":"Manager Support","email":"Leonie.Ginus-deJong@zig.nl","type":"manager"},{"id":"sh4","name":"Jan Kamphorst","role":"Manager Projects","email":"Jan.Kamphorst@zig.nl","type":"stakeholder"}],"demo":{"trainees":[{"id":"t-a","name":"Sanne de Vries (demo)","email":"sanne.devries@zig.nl"},{"id":"t-b","name":"Tom Bakker (demo)","email":"tom.bakker@zig.nl"},{"id":"t-c","name":"Lisa Jansen (demo)","email":"lisa.jansen@zig.nl"},{"id":"t-d","name":"Youssef El Amrani (demo)","email":"youssef.elamrani@zig.nl"}],"progress":{"t-a":{"0_1":{"st":"done","att":"present","cs":true},"0_2":{"st":"done","att":"present","cs":true},"0_3":{"st":"done","att":"present","cs":true},"0_4":{"st":"done","att":"present","cs":true},"1_0":{"st":"done","att":"present","cs":true},"1_1":{"st":"done","att":"present","cs":true},"1_2":{"st":"done","att":"partial","cs":true},"1_3":{"st":"done","att":"present","cs":true},"1_4":{"st":"done","att":"present","cs":true},"2_0":{"st":"done","att":"present","cs":false},"2_1":{"st":"done","att":"absent","cs":false},"2_2":{"st":"done","att":"present","cs":false},"2_3":{"st":"done","att":"present","cs":false},"2_4":{"st":"done","att":"partial","cs":false},"3_0":{"st":"done","att":"present","cs":false},"3_1":{"st":"done","att":"present","cs":false},"3_2":{"st":"done","att":"present","cs":false},"3_3":{"st":"done","att":"present","cs":false},"3_4":{"st":"done","att":"present","cs":false},"4_0":{"st":"done","att":"present","cs":false},"4_1":{"st":"done","att":"partial","cs":false},"4_2":{"st":"done","att":"absent","cs":false},"4_3":{"st":"done","att":"present","cs":false},"4_4":{"st":"done","att":"present","cs":false},"5_0":{"st":"done","att":"present","cs":false},"5_1":{"st":"done","att":"present","cs":false},"5_2":{"st":"done","att":"present","cs":false},"5_3":{"st":"done","att":"partial","cs":false},"5_4":{"st":"done","att":"present","cs":false},"6_0":{"st":"done","att":"present","cs":false},"6_1":{"st":"done","att":"present","cs":false},"6_2":{"st":"done","att":"present","cs":false},"6_3":{"st":"done","att":"absent","cs":false},"6_4":{"st":"done","att":"present","cs":false},"7_0":{"st":"done","att":"partial","cs":false},"7_1":{"st":"done","att":"present","cs":false},"7_2":{"st":"done","att":"present","cs":false},"7_3":{"st":"done","att":"present","cs":false},"7_4":{"st":"done","att":"present","cs":false}},"t-b":{"0_1":{"st":"done","att":"present","cs":true},"0_2":{"st":"done","att":"present","cs":true},"0_3":{"st":"done","att":"present","cs":true},"0_4":{"st":"done","att":"present","cs":true},"1_0":{"st":"done","att":"present","cs":true},"1_1":{"st":"done","att":"present","cs":true},"1_2":{"st":"done","att":"partial","cs":true},"1_3":{"st":"done","att":"present","cs":true},"1_4":{"st":"done","att":"present","cs":true},"2_0":{"st":"done","att":"present","cs":false},"2_1":{"st":"done","att":"absent","cs":false},"2_2":{"st":"done","att":"present","cs":false},"2_3":{"st":"done","att":"present","cs":false},"2_4":{"st":"done","att":"partial","cs":false},"3_0":{"st":"done","att":"present","cs":false},"3_1":{"st":"done","att":"present","cs":false},"3_2":{"st":"done","att":"present","cs":false},"3_3":{"st":"done","att":"present","cs":false},"3_4":{"st":"done","att":"present","cs":false},"4_0":{"st":"done","att":"present","cs":false},"4_1":{"st":"done","att":"partial","cs":false},"4_2":{"st":"done","att":"absent","cs":false},"4_3":{"st":"done","att":"present","cs":false},"4_4":{"st":"done","att":"present","cs":false}},"t-c":{"0_1":{"st":"done","att":"present","cs":true},"0_2":{"st":"done","att":"present","cs":true},"0_3":{"st":"done","att":"present","cs":true},"0_4":{"st":"done","att":"present","cs":true},"1_0":{"st":"done","att":"present","cs":true},"1_1":{"st":"done","att":"present","cs":true},"1_2":{"st":"done","att":"partial","cs":true},"1_3":{"st":"done","att":"present","cs":true},"1_4":{"st":"done","att":"present","cs":true},"2_0":{"st":"done","att":"present","cs":false},"2_1":{"st":"done","att":"absent","cs":false},"2_2":{"st":"done","att":"present","cs":false},"2_3":{"st":"done","att":"present","cs":false},"2_4":{"st":"done","att":"partial","cs":false},"3_0":{"st":"done","att":"present","cs":false},"3_1":{"st":"done","att":"present","cs":false},"3_2":{"st":"done","att":"present","cs":false},"3_3":{"st":"done","att":"present","cs":false},"3_4":{"st":"done","att":"present","cs":false},"4_0":{"st":"done","att":"present","cs":false},"4_1":{"st":"done","att":"partial","cs":false},"4_2":{"st":"done","att":"absent","cs":false},"4_3":{"st":"done","att":"present","cs":false},"4_4":{"st":"done","att":"present","cs":false},"5_0":{"st":"done","att":"present","cs":false},"5_1":{"st":"done","att":"present","cs":false},"5_2":{"st":"done","att":"present","cs":false},"5_3":{"st":"done","att":"partial","cs":false},"5_4":{"st":"done","att":"present","cs":false},"6_0":{"st":"done","att":"present","cs":false},"6_1":{"st":"done","att":"present","cs":false},"6_2":{"st":"done","att":"present","cs":false},"6_3":{"st":"done","att":"absent","cs":false},"6_4":{"st":"done","att":"present","cs":false},"7_0":{"st":"done","att":"partial","cs":false},"7_1":{"st":"done","att":"present","cs":false},"7_2":{"st":"done","att":"present","cs":false},"7_3":{"st":"done","att":"present","cs":false},"7_4":{"st":"done","att":"present","cs":false},"8_0":{"st":"done","att":"present","cs":false},"8_1":{"st":"done","att":"present","cs":false},"8_2":{"st":"done","att":"partial","cs":false},"8_3":{"st":"done","att":"present","cs":false},"8_4":{"st":"done","att":"absent","cs":false},"9_0":{"st":"done","att":"present","cs":false},"9_1":{"st":"done","att":"present","cs":false},"9_2":{"st":"done","att":"present","cs":false},"9_3":{"st":"done","att":"present","cs":false},"9_4":{"st":"done","att":"partial","cs":false},"10_0":{"st":"done","att":"present","cs":false},"10_1":{"st":"done","att":"present","cs":false},"10_2":{"st":"done","att":"present","cs":false},"10_3":{"st":"done","att":"present","cs":false},"10_4":{"st":"done","att":"present","cs":false}},"t-d":{"0_1":{"st":"done","att":"present","cs":true},"0_2":{"st":"done","att":"present","cs":true},"0_3":{"st":"done","att":"present","cs":true},"0_4":{"st":"done","att":"present","cs":true},"1_0":{"st":"done","att":"present","cs":true},"1_1":{"st":"done","att":"present","cs":true},"1_2":{"st":"done","att":"partial","cs":true},"1_3":{"st":"done","att":"present","cs":true},"1_4":{"st":"done","att":"present","cs":true},"2_0":{"st":"done","att":"present","cs":false},"2_1":{"st":"done","att":"absent","cs":false},"2_2":{"st":"done","att":"present","cs":false},"2_3":{"st":"done","att":"present","cs":false},"2_4":{"st":"done","att":"partial","cs":false},"3_0":{"st":"done","att":"present","cs":false},"3_1":{"st":"done","att":"present","cs":false},"3_2":{"st":"done","att":"present","cs":false},"3_3":{"st":"done","att":"present","cs":false},"3_4":{"st":"done","att":"present","cs":false}}},"feedback":[{"id":"df0","tid":"t-a","wi":1,"day":4,"a":"Sanne de Vries (demo)","r":"Deelnemer","dt":"2025-12-05","rt":4,"c":"Goede sessie, veel geleerd over de supportprocessen."},{"id":"df1","tid":"t-a","wi":3,"day":0,"a":"Sanne de Vries (demo)","r":"Deelnemer","dt":"2025-12-01","rt":5,"c":"Pittig tempo maar leerzaam. Graag meer voorbeelden."},{"id":"df2","tid":"t-a","wi":5,"day":4,"a":"Sanne de Vries (demo)","r":"Deelnemer","dt":"2025-12-05","rt":4,"c":"Fijne begeleiding van de buddy, praktijkgericht."},{"id":"df3","tid":"t-a","wi":7,"day":3,"a":"Sanne de Vries (demo)","r":"Deelnemer","dt":"2025-12-04","rt":3,"c":"Onderwerp was duidelijk, volgende keer meer verdieping."},{"id":"df4","tid":"t-b","wi":1,"day":1,"a":"Tom Bakker (demo)","r":"Deelnemer","dt":"2025-12-02","rt":3,"c":"Nuttige training, direct toepasbaar in mijn werk."},{"id":"df5","tid":"t-b","wi":2,"day":4,"a":"Tom Bakker (demo)","r":"Deelnemer","dt":"2025-11-05","rt":4,"c":"Sterke kennisdag, goede afwisseling theorie/praktijk."},{"id":"df6","tid":"t-b","wi":4,"day":0,"a":"Tom Bakker (demo)","r":"Deelnemer","dt":"2025-11-01","rt":5,"c":"Iets te veel stof voor één dag, verder top."},{"id":"df7","tid":"t-c","wi":0,"day":1,"a":"Lisa Jansen (demo)","r":"Deelnemer","dt":"2025-11-02","rt":5,"c":"Prettige intervisie, veel gehad aan de feedback van collega's."},{"id":"df8","tid":"t-c","wi":2,"day":3,"a":"Lisa Jansen (demo)","r":"Deelnemer","dt":"2025-11-04","rt":4,"c":"Goede sessie, veel geleerd over de supportprocessen."},{"id":"df9","tid":"t-c","wi":4,"day":4,"a":"Lisa Jansen (demo)","r":"Deelnemer","dt":"2025-11-05","rt":5,"c":"Pittig tempo maar leerzaam. Graag meer voorbeelden."},{"id":"df10","tid":"t-c","wi":6,"day":0,"a":"Lisa Jansen (demo)","r":"Deelnemer","dt":"2025-11-01","rt":4,"c":"Fijne begeleiding van de buddy, praktijkgericht."},{"id":"df11","tid":"t-c","wi":9,"day":4,"a":"Lisa Jansen (demo)","r":"Deelnemer","dt":"2025-12-05","rt":5,"c":"Onderwerp was duidelijk, volgende keer meer verdieping."},{"id":"df12","tid":"t-d","wi":1,"day":4,"a":"Youssef El Amrani (demo)","r":"Deelnemer","dt":"2025-12-05","rt":3,"c":"Nuttige training, direct toepasbaar in mijn werk."},{"id":"df13","tid":"t-d","wi":3,"day":3,"a":"Youssef El Amrani (demo)","r":"Deelnemer","dt":"2025-12-04","rt":4,"c":"Sterke kennisdag, goede afwisseling theorie/praktijk."}]}};
+
+const DAYS=["Maandag","Dinsdag","Woensdag","Donderdag","Vrijdag"];
+const DSHORT=["Ma","Di","Wo","Do","Vr"];
+const STATUS={planned:{l:"Gepland",c:"var(--blue)"},done:{l:"Afgerond",c:"var(--green)"},cancelled:{l:"Vervallen",c:"var(--grey)"},na:{l:"N.v.t.",c:"var(--grey)"}};
+const ATT={present:{l:"Aanwezig",c:"var(--green)"},partial:{l:"Deels",c:"var(--amber)"},absent:{l:"Afwezig",c:"var(--red)"}};
+const LOC={onsite:{l:"Op locatie",c:"var(--blue)"},remote:{l:"Remote",c:"var(--cyan)"}};
+const KEY="zig_yp_web_v2";
+const PLAN_VER="2026-08-04b";
+
+let S=null;                 // gedeelde data (planning template + trainees + progress + feedback)
+let me=null;                // ingelogde gebruiker {id,name,email,role}
+let UI={tab:null,open:null,viewTrainee:null,q:"",phase:"all",status:"all",onlyFb:false,fbTrainee:"all",curRate:0,admQ:"",admRole:"all",admEdit:null};
+
+/* ================= Helpers ================= */
+function clone(o){return JSON.parse(JSON.stringify(o));}
+function esc(s){return (s==null?"":String(s)).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function initials(n){return (n||"?").replace(/\(demo\)/i,"").split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]).join("").toUpperCase();}
+function firstLine(t){return (t||"").split("\n")[0];}
+function colorFor(str){let h=0;for(let i=0;i<(str||"").length;i++)h=(h*31+str.charCodeAt(i))%360;return "hsl("+h+",62%,52%)";}
+function sessDate(i,day){const b=new Date((S.cohortStart||"2026-08-31")+"T00:00:00");b.setDate(b.getDate()+i*7+day+(i>=17?7:0));return b;}
+function fmt(d){return d.toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"long",year:"numeric"});}
+function fmtShort(d){return d.toLocaleDateString("nl-NL",{day:"numeric",month:"short"});}
+function todayW(){const b=new Date((S.cohortStart||"2026-08-31")+"T00:00:00");const t=new Date();t.setHours(0,0,0,0);let d=Math.floor((t-b)/(7*864e5));if(d<0)return -1;if(d<17)return d;if(d===17)return -1;const i=d-1;return i<52?i:-1;}
+function stars(n){n=n||0;return "★".repeat(n)+"☆".repeat(5-n);}
+function toast(t){const el=document.getElementById("toast");el.textContent=t;el.classList.add("on");clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove("on"),2600);}
+function isNa(i,day){return !!S.weeks[i].s[day].na;}
+function prog(tid,i,day){const m=(S.progress[tid]||{});return m[i+"_"+day]||{st:"planned",att:null,cs:false};}
+function setProg(tid,i,day,patch){if(!S.progress[tid])S.progress[tid]={};const k=i+"_"+day;const cur=S.progress[tid][k]||{st:"planned",att:null,cs:false};S.progress[tid][k]=Object.assign(cur,patch);}
+function fbFor(tid,i,day){return (S.feedback||[]).filter(f=>f.tid===tid&&f.wi===i&&f.day===day);}
+function fbSession(i,day){return (S.feedback||[]).filter(f=>f.wi===i&&f.day===day);}
+function trainee(tid){return (S.trainees||[]).find(t=>t.id===tid);}
+
+function stats(tid,fbSource){
+ let total=0,done=0,tracked=0,present=0,onsite=0,remote=0;
+ for(let i=0;i<S.weeks.length;i++)for(let day=0;day<5;day++){
+   if(isNa(i,day))continue;total++;const p=prog(tid,i,day);
+   if(p.st==="done")done++;if(p.att){tracked++;if(p.att==="present")present++;}
+   if((p.loc||"onsite")==="remote")remote++;else onsite++;
+ }
+ const src=fbSource||S.feedback||[];
+ const fb=src.filter(f=>f.tid===tid);
+ const rated=fb.filter(f=>f.rt);const avg=rated.length?(rated.reduce((a,f)=>a+f.rt,0)/rated.length):0;
+ return {total,done,pct:total?Math.round(done/total*100):0,attPct:tracked?Math.round(present/tracked*100):null,fb:fb.length,avg,onsite,remote};
+}
+
+/* ================= Trainer-toewijzing per sessie ================= */
+function sessionTrainer(i,day){return (S.assign||{})[i+"_"+day]||null;}
+function locOf(tid,i,day){return prog(tid,i,day).loc||"onsite";}
+function isMyTrainerSession(i,day){if(me.role!=="trainer")return true;const a=sessionTrainer(i,day);return !!(a&&(a.email||"").toLowerCase()===(me.email||"").toLowerCase());}
+function availableTrainers(){
+ const m={};
+ (S.access||[]).forEach(u=>{if(String(u.role).toLowerCase()==="trainer"){const k=(u.email||"").toLowerCase();m[k]={email:k,name:u.name||u.email};}});
+ (CONFIG.trainers||[]).forEach(e=>{const k=(e||"").toLowerCase();if(k&&!m[k])m[k]={email:k,name:e};});
+ if(Store.mode!=="graph")(S.trainers||[]).forEach(u=>{const k=(u.email||"").toLowerCase();if(k&&!m[k])m[k]={email:k,name:u.name||u.email};});
+ return Object.keys(m).map(k=>m[k]).sort((a,b)=>(a.name||"").localeCompare(b.name||""));
+}
+/* Feedback die de huidige gebruiker mag zien: manager = alles; trainer = alleen zijn/haar toegewezen sessies. */
+function feedbackVisibleToMe(){
+ if(me.role!=="trainer")return (S.feedback||[]);
+ const em=(me.email||"").toLowerCase();
+ return (S.feedback||[]).filter(f=>{if(f.wi<0)return false;const a=(S.assign||{})[f.wi+"_"+f.day];return !!(a&&(a.email||"").toLowerCase()===em);});
+}
+
+/* ================= Authenticatie (MSAL + demo) ================= */
+const DEMO={current:null,resolve(){
+  if(!this.current)return null;
+  if(this.current==="mgr")return {id:"mgr-demo",name:"Jarno Cislo",email:"jarno.cislo@zig.nl",role:"manager"};
+  if(this.current==="trn")return {id:"trn-demo",name:"Peter Smit (demo)",email:"peter.smit@zig.nl",role:"trainer"};
+  const t=trainee(this.current);return t?{id:t.id,name:t.name,email:t.email,role:"trainee"}:null;
+}};
+const Auth={mode:"demo",pca:null,account:null,
+ async init(){
+   if(CONFIG.auth.enabled && window.msal && CONFIG.auth.clientId){
+     try{
+       this.pca=new msal.PublicClientApplication({auth:{clientId:CONFIG.auth.clientId,authority:"https://login.microsoftonline.com/"+(CONFIG.auth.tenantId||"organizations"),redirectUri:location.origin+location.pathname},cache:{cacheLocation:"localStorage"}});
+       await this.pca.initialize();
+       const resp=await this.pca.handleRedirectPromise();
+       if(resp&&resp.account)this.account=resp.account;
+       else{const a=this.pca.getAllAccounts();if(a.length)this.account=a[0];}
+       this.mode="msal";
+     }catch(e){this.mode="demo";}
+   }
+ },
+ signedIn(){return this.mode==="msal"?!!this.account:!!DEMO.current;},
+ async login(){if(this.mode==="msal"){try{await this.pca.loginRedirect({scopes:CONFIG.graph.scopes});}catch(e){toast("Inloggen mislukt");}}},
+ async logout(){if(this.mode==="msal"){try{await this.pca.logoutRedirect();}catch(e){}}else{DEMO.current=null;boot();}},
+ async token(){if(this.mode!=="msal")return null;try{const r=await this.pca.acquireTokenSilent({account:this.account,scopes:CONFIG.graph.scopes});return r.accessToken;}catch(e){try{const r=await this.pca.acquireTokenPopup({scopes:CONFIG.graph.scopes});return r.accessToken;}catch(e2){return null;}}},
+ profile(){if(this.mode==="msal"&&this.account){const c=this.account.idTokenClaims||{};return {id:(this.account.username||this.account.homeAccountId||"").toLowerCase(),name:this.account.name||this.account.username,email:(this.account.username||"").toLowerCase(),roles:c.roles||[]};}return null;}
+};
+/* Zoekt een handmatig toegevoegde gebruiker (beheermodule) op e-mail. */
+function accessUser(email){const e=(email||"").toLowerCase();return ((S&&S.access)||[]).find(u=>(u.email||"").toLowerCase()===e)||null;}
+function roleFor(email,roles){
+ const rl=(roles||[]).map(r=>String(r).toLowerCase());
+ const em=(email||"").toLowerCase();
+ const u=accessUser(email);const urole=u?String(u.role).toLowerCase():"";
+ if(rl.indexOf("manager")>=0||CONFIG.managers.map(m=>m.toLowerCase()).indexOf(em)>=0||urole==="manager")return "manager";
+ if(rl.indexOf("trainer")>=0||(CONFIG.trainers||[]).map(m=>m.toLowerCase()).indexOf(em)>=0||urole==="trainer")return "trainer";
+ return "trainee";
+}
+/* Bepaalt of een aangemelde gebruiker toegang heeft (selecte groep) en met welke rol.
+   Toegang = vaste beheerder, óf staat in de beheermodule-lijst, óf in CONFIG.allowlist,
+   óf heeft een toegestane Entra app-rol. Zijn alle lijsten leeg, dan vertrouwt de app op
+   de Entra-toewijzing ('Toewijzing vereist'). */
+function classify(email,roles){
+ const role=roleFor(email,roles);                 // "manager" of "trainee"
+ const A=CONFIG.access||{};
+ if(!A.restrict)return {allowed:true,role};        // restrictie uit → iedereen die inlogt mag erin
+ const em=(email||"").toLowerCase();
+ const rl=(roles||[]).map(r=>String(r).toLowerCase());
+ const cfgList=(A.allowlist||[]).map(x=>x.toLowerCase());
+ const beheer=((S&&S.access)||[]).map(u=>(u.email||"").toLowerCase());
+ const roleOk=(A.allowedRoles||[]).some(r=>rl.indexOf(String(r).toLowerCase())>=0);
+ const isStaff=role==="manager"||role==="trainer";
+ const hasList=cfgList.length||beheer.length;
+ const allowed = hasList ? (isStaff||cfgList.indexOf(em)>=0||beheer.indexOf(em)>=0||roleOk) : true;
+ return {allowed,role};
+}
+
+/* ================= Opslag (Graph SharePoint + lokaal) ================= */
+const Store={mode:"local",siteId:null,
+ async init(){
+   if(Auth.mode==="msal" && CONFIG.sharepoint.siteHost){
+     try{const tok=await Auth.token();if(tok){await this._site(tok);this.mode="graph";}}catch(e){this.mode="local";}
+   }
+ },
+ async _g(url,opt){const tok=await Auth.token();opt=opt||{};opt.headers=Object.assign({Authorization:"Bearer "+tok,"Content-Type":"application/json"},opt.headers||{});const r=await fetch("https://graph.microsoft.com/v1.0"+url,opt);if(!r.ok)throw new Error("graph "+r.status);return r.status===204?null:r.json();},
+ async _site(tok){const j=await fetch("https://graph.microsoft.com/v1.0/sites/"+CONFIG.sharepoint.siteHost+":"+CONFIG.sharepoint.sitePath,{headers:{Authorization:"Bearer "+tok}}).then(r=>r.json());this.siteId=j.id;},
+ async loadAll(){
+   // begin met lokale/seed-data
+   const local=this.loadLocal();
+   if(local){S.trainees=local.trainees||S.trainees;S.progress=local.progress||S.progress;S.feedback=local.feedback||S.feedback;if(local.cohortName)S.cohortName=local.cohortName;if(local.cohortStart)S.cohortStart=local.cohortStart;}
+   if(this.mode!=="graph")return;
+   try{
+     const fb=await this._g("/sites/"+this.siteId+"/lists/"+CONFIG.sharepoint.feedbackList+"/items?expand=fields&$top=2000");
+     S.feedback=(fb.value||[]).map(it=>({id:"sp"+it.id,spId:it.id,tid:it.fields.TraineeId,wi:+it.fields.Wi,day:+it.fields.Day,a:it.fields.AuthorName,r:it.fields.RoleName||"Deelnemer",dt:(it.fields.Created||"").slice(0,10),rt:+it.fields.Rating||0,c:it.fields.Comment||""}));
+     const pr=await this._g("/sites/"+this.siteId+"/lists/"+CONFIG.sharepoint.progressList+"/items?expand=fields&$top=5000");
+     const pm={};(pr.value||[]).forEach(it=>{const f=it.fields;if(!pm[f.TraineeId])pm[f.TraineeId]={};pm[f.TraineeId][f.Wi+"_"+f.Day]={st:f.Status||"planned",att:f.Attendance||null,loc:f.Location||"onsite",cs:!!f.Synced,spId:it.id};});
+     S.progress=pm;
+     // trainees afleiden uit progress/feedback
+     const seen={};(S.trainees||[]).forEach(t=>seen[t.id]=t);
+     Object.keys(pm).forEach(id=>{if(!seen[id])seen[id]={id,name:id,email:id};});
+     S.feedback.forEach(f=>{if(f.tid&&!seen[f.tid])seen[f.tid]={id:f.tid,name:f.a||f.tid,email:f.tid};});
+     S.trainees=Object.keys(seen).map(k=>seen[k]);
+   }catch(e){this.mode="local";}
+ },
+ async saveProgress(tid,i,day,val){
+   setProg(tid,i,day,val);
+   if(this.mode==="graph"){
+     try{const t=trainee(tid)||me;const p=S.progress[tid][i+"_"+day];const fields={Title:"YP",TraineeId:tid,TraineeName:t&&t.name||tid,Wi:i,Day:day,Status:p.st,Attendance:p.att||"",Location:p.loc||"onsite",Synced:!!p.cs};
+       if(p.spId){await this._g("/sites/"+this.siteId+"/lists/"+CONFIG.sharepoint.progressList+"/items/"+p.spId+"/fields",{method:"PATCH",body:JSON.stringify(fields)});}
+       else{const r=await this._g("/sites/"+this.siteId+"/lists/"+CONFIG.sharepoint.progressList+"/items",{method:"POST",body:JSON.stringify({fields})});if(r&&r.id)p.spId=r.id;}
+       return;
+     }catch(e){}
+   }
+   this.saveLocal();
+ },
+ async addFeedback(fb){
+   if(this.mode==="graph"){
+     try{const t=trainee(fb.tid);const fields={Title:"YP feedback",TraineeId:fb.tid,TraineeName:t&&t.name||fb.tid,Wi:fb.wi,Day:fb.day,AuthorName:fb.a,RoleName:fb.r,Rating:fb.rt||0,Comment:fb.c};
+       const r=await this._g("/sites/"+this.siteId+"/lists/"+CONFIG.sharepoint.feedbackList+"/items",{method:"POST",body:JSON.stringify({fields})});
+       if(r&&r.id){fb.spId=r.id;fb.id="sp"+r.id;}S.feedback.push(fb);return;
+     }catch(e){}
+   }
+   S.feedback.push(fb);this.saveLocal();
+ },
+ async delFeedback(f){
+   const k=S.feedback.findIndex(x=>x.id===f.id);if(k>=0)S.feedback.splice(k,1);
+   if(this.mode==="graph"&&f.spId){try{await this._g("/sites/"+this.siteId+"/lists/"+CONFIG.sharepoint.feedbackList+"/items/"+f.spId,{method:"DELETE"});return;}catch(e){}}
+   this.saveLocal();
+ },
+ async loadAccess(){
+   // 1) lokaal / demo
+   const local=this.loadLocal();
+   if(local&&local.access)S.access=local.access;
+   // 2) gedeeld via SharePoint (geldt dan voor iedereen)
+   if(this.mode==="graph"&&CONFIG.sharepoint.accessList){
+     try{const r=await this._g("/sites/"+this.siteId+"/lists/"+CONFIG.sharepoint.accessList+"/items?expand=fields&$top=2000");
+       S.access=(r.value||[]).map(it=>({id:"sp"+it.id,spId:it.id,email:(it.fields.Email||"").toLowerCase(),name:it.fields.Title||it.fields.Email,role:(it.fields.Role||"trainee").toLowerCase()}));
+     }catch(e){/* lijst bestaat mogelijk nog niet → val terug op lokaal */}
+   }
+   if(!S.access)S.access=[];
+   return S.access;
+ },
+ async addAccessUser(u){
+   u.email=(u.email||"").toLowerCase();u.role=(u.role||"trainee").toLowerCase();
+   if(this.mode==="graph"&&CONFIG.sharepoint.accessList){
+     try{const fields={Title:u.name||u.email,Email:u.email,Role:u.role};
+       const r=await this._g("/sites/"+this.siteId+"/lists/"+CONFIG.sharepoint.accessList+"/items",{method:"POST",body:JSON.stringify({fields})});
+       if(r&&r.id){u.spId=r.id;u.id="sp"+r.id;}S.access.push(u);return;
+     }catch(e){/* val terug op lokaal */}
+   }
+   u.id=u.id||("u"+Date.now().toString(36)+Math.floor(Math.random()*1e4).toString(36));S.access.push(u);this.saveLocal();
+ },
+ async updateAccessUser(u,patch){
+   const t=(S.access||[]).find(x=>(u.id&&x.id===u.id)||((x.email||"")===(u.email||"")));
+   if(!t)return;
+   if(patch.name!=null)t.name=patch.name;
+   if(patch.role!=null)t.role=String(patch.role).toLowerCase();
+   if(patch.email!=null)t.email=String(patch.email).toLowerCase();
+   if(this.mode==="graph"&&t.spId&&CONFIG.sharepoint.accessList){
+     try{const fields={Title:t.name||t.email,Email:t.email,Role:t.role};
+       await this._g("/sites/"+this.siteId+"/lists/"+CONFIG.sharepoint.accessList+"/items/"+t.spId+"/fields",{method:"PATCH",body:JSON.stringify(fields)});
+       return;
+     }catch(e){/* val terug op lokaal */}
+   }
+   this.saveLocal();
+ },
+ async delAccessUser(u){
+   const k=(S.access||[]).findIndex(x=>(u.id&&x.id===u.id)||((x.email||"")===(u.email||"")));if(k>=0)S.access.splice(k,1);
+   if(this.mode==="graph"&&u.spId){try{await this._g("/sites/"+this.siteId+"/lists/"+CONFIG.sharepoint.accessList+"/items/"+u.spId,{method:"DELETE"});return;}catch(e){}}
+   this.saveLocal();
+ },
+ async loadAssign(){
+   if(this.mode==="graph"&&CONFIG.sharepoint.assignList){
+     try{const r=await this._g("/sites/"+this.siteId+"/lists/"+CONFIG.sharepoint.assignList+"/items?expand=fields&$top=5000");
+       const m={};(r.value||[]).forEach(it=>{const f=it.fields;m[f.Wi+"_"+f.Day]={email:(f.TrainerEmail||"").toLowerCase(),name:f.TrainerName||f.TrainerEmail,spId:it.id};});
+       S.assign=m;return S.assign;
+     }catch(e){S.assign={};return S.assign;}  // lijst bestaat mogelijk nog niet
+   }
+   const local=this.loadLocal();
+   if(local&&local.assign)S.assign=local.assign;
+   if(!S.assign)S.assign={};
+   return S.assign;
+ },
+ async setAssign(i,day,val){
+   if(!S.assign)S.assign={};const k=i+"_"+day;const cur=S.assign[k];
+   if(val){
+     const rec={email:(val.email||"").toLowerCase(),name:val.name,spId:cur&&cur.spId};S.assign[k]=rec;
+     if(this.mode==="graph"&&CONFIG.sharepoint.assignList){
+       try{const fields={Title:"YP",Wi:i,Day:day,TrainerEmail:rec.email,TrainerName:rec.name};
+         if(rec.spId){await this._g("/sites/"+this.siteId+"/lists/"+CONFIG.sharepoint.assignList+"/items/"+rec.spId+"/fields",{method:"PATCH",body:JSON.stringify(fields)});}
+         else{const r=await this._g("/sites/"+this.siteId+"/lists/"+CONFIG.sharepoint.assignList+"/items",{method:"POST",body:JSON.stringify({fields})});if(r&&r.id)rec.spId=r.id;}
+         return;
+       }catch(e){}
+     }
+   }else{
+     const sp=cur&&cur.spId;delete S.assign[k];
+     if(this.mode==="graph"&&sp){try{await this._g("/sites/"+this.siteId+"/lists/"+CONFIG.sharepoint.assignList+"/items/"+sp,{method:"DELETE"});return;}catch(e){}}
+   }
+   this.saveLocal();
+ },
+ async loadPlanning(){
+   const local=this.loadLocal();
+   if(local&&local.weeks&&local.planVer===PLAN_VER)S.weeks=local.weeks;
+   if(this.mode==="graph"&&CONFIG.sharepoint.configList){
+     try{const r=await this._g("/sites/"+this.siteId+"/lists/"+CONFIG.sharepoint.configList+"/items?expand=fields&$top=50");
+       const it=(r.value||[]).find(x=>x.fields&&x.fields.Title==="planning");
+       if(it&&it.fields&&it.fields.Data){this._planId=it.id;const obj=JSON.parse(it.fields.Data);if(obj&&obj.weeks&&obj.ver===PLAN_VER){S.weeks=obj.weeks;}else{try{await this.savePlanning();}catch(e){}}}
+     }catch(e){/* lijst bestaat mogelijk nog niet */}
+   }
+   this.saveLocal();return S.weeks;
+ },
+ async savePlanning(){
+   this.saveLocal();
+   if(this.mode==="graph"&&CONFIG.sharepoint.configList){
+     try{const fields={Title:"planning",Data:JSON.stringify({ver:PLAN_VER,weeks:S.weeks})};
+       if(this._planId){await this._g("/sites/"+this.siteId+"/lists/"+CONFIG.sharepoint.configList+"/items/"+this._planId+"/fields",{method:"PATCH",body:JSON.stringify(fields)});}
+       else{const r=await this._g("/sites/"+this.siteId+"/lists/"+CONFIG.sharepoint.configList+"/items",{method:"POST",body:JSON.stringify({fields})});if(r&&r.id)this._planId=r.id;}
+     }catch(e){}
+   }
+ },
+ saveLocal(){try{localStorage.setItem(KEY,JSON.stringify({trainees:S.trainees,progress:S.progress,feedback:S.feedback,access:S.access,assign:S.assign,weeks:S.weeks,planVer:PLAN_VER,cohortName:S.cohortName,cohortStart:S.cohortStart}));}catch(e){}},
+ loadLocal(){try{const r=localStorage.getItem(KEY);if(r)return JSON.parse(r);}catch(e){}return null;}
+};
+
+/* ================= Outlook / agenda ================= */
+function isoLocal(d,h,m){const p=n=>String(n).padStart(2,"0");return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate())+"T"+p(h)+":"+p(m)+":00";}
+function icsStamp(d,h,m){const p=n=>String(n).padStart(2,"0");return d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+"T"+p(h)+p(m)+"00";}
+function buildVevent(i,day){
+ const w=S.weeks[i],se=w.s[day],ph=S.phases[w.p]||{};const d=sessDate(i,day);
+ const title=(firstLine(se.t)||"Sessie").slice(0,150);
+ const desc=("Young Professional programma — "+w.w+" ("+w.d+")\\nFase: "+(ph.head||"")+" — "+(ph.title||"")+"\\n\\n"+se.t).replace(/\n/g,"\\n").replace(/,/g,"\\,");
+ return ["BEGIN:VEVENT","UID:yp-"+i+"-"+day+"@zig.nl","DTSTAMP:"+icsStamp(new Date(),9,0),"DTSTART:"+icsStamp(d,9,0),"DTEND:"+icsStamp(d,17,0),"SUMMARY:YP: "+title.replace(/,/g,"\\,"),"DESCRIPTION:"+desc,"LOCATION:Zig","BEGIN:VALARM","TRIGGER:-P1D","ACTION:DISPLAY","DESCRIPTION:Herinnering — YP-sessie morgen","END:VALARM","BEGIN:VALARM","TRIGGER:-PT30M","ACTION:DISPLAY","DESCRIPTION:YP-sessie begint zo","END:VALARM","END:VEVENT"].join("\r\n");
+}
+function downloadIcs(name,events){const ics=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Zig//YP Planning//NL","CALSCALE:GREGORIAN","METHOD:PUBLISH",...events,"END:VCALENDAR"].join("\r\n");const blob=new Blob([ics],{type:"text/calendar;charset=utf-8"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);}
+function outlookWeb(i,day){const w=S.weeks[i],se=w.s[day],ph=S.phases[w.p]||{};const d=sessDate(i,day);const p=n=>String(n).padStart(2,"0");const iso=d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate());const subject="YP: "+(firstLine(se.t)||"Sessie").slice(0,150);const body="Young Professional programma — "+w.w+" ("+w.d+")\nFase: "+(ph.head||"")+" — "+(ph.title||"")+"\n\n"+se.t;const url="https://outlook.office.com/calendar/0/deeplink/compose?subject="+encodeURIComponent(subject)+"&startdt="+iso+"T09:00:00&enddt="+iso+"T17:00:00&location=Zig&body="+encodeURIComponent(body);window.open(url,"_blank","noopener");}
+async function addToCalendar(i,day){
+ const tok=await Auth.token();
+ const w=S.weeks[i],se=w.s[day],ph=S.phases[w.p]||{};const d=sessDate(i,day);
+ if(tok){
+   try{
+     const body={subject:"YP: "+firstLine(se.t).slice(0,150),body:{contentType:"HTML",content:esc(w.w)+" ("+esc(w.d)+")<br>Fase: "+esc(ph.head)+" — "+esc(ph.title)+"<br><br>"+esc(se.t).replace(/\n/g,"<br>")},start:{dateTime:isoLocal(d,9,0),timeZone:CONFIG.tz},end:{dateTime:isoLocal(d,17,0),timeZone:CONFIG.tz},location:{displayName:"Zig"},isReminderOn:true,reminderMinutesBeforeStart:30};
+     const r=await fetch("https://graph.microsoft.com/v1.0/me/events",{method:"POST",headers:{Authorization:"Bearer "+tok,"Content-Type":"application/json"},body:JSON.stringify(body)});
+     if(r.ok){await Store.saveProgress(me.id,i,day,{cs:true});toast("Toegevoegd aan je Outlook-agenda");render();return;}
+   }catch(e){}
+ }
+ outlookWeb(i,day);downloadIcs("YP-"+S.weeks[i].w.replace(/\s/g,"")+"-"+DSHORT[day]+".ics",[buildVevent(i,day)]);
+ await Store.saveProgress(me.id,i,day,{cs:true});toast("Sessie klaargezet voor Outlook");render();
+}
+function exportIcsAll(){const evs=[];S.weeks.forEach(w=>w.s.forEach((se,day)=>{if(!se.na)evs.push(buildVevent(w.i,day));}));downloadIcs("YoungProfessional-planning.ics",evs);toast(evs.length+" sessies geëxporteerd (.ics)");}
+function syncWeek(i){const evs=[];for(let day=0;day<5;day++){if(!isNa(i,day))evs.push(buildVevent(i,day));}if(!evs.length){toast("Geen dagen");return;}downloadIcs("YP-"+S.weeks[i].w.replace(/\s/g,"")+".ics",evs);toast("Week geëxporteerd (.ics)");}
+function exportFeedbackCsv(list){
+ const rows=[["Young Professional","Week","Dag","Datum","Sessie","Auteur","Rol","Beoordeling","Opmerking"]];
+ (list||S.feedback).slice().forEach(f=>{const overall=f.wi<0;const w=overall?null:S.weeks[f.wi];const t=trainee(f.tid);rows.push([t?t.name:f.tid,w?w.w:(overall?"Algemeen":""),overall?"":DAYS[f.day],overall?"":fmtShort(sessDate(f.wi,f.day)),overall?"Algemene feedback":firstLine(w?w.s[f.day].t:""),f.a,f.r,f.rt||"",(f.c||"").replace(/\n/g," ")]);});
+ const csv=rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(";")).join("\r\n");
+ const blob=new Blob(["﻿"+csv],{type:"text/csv;charset=utf-8"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="YP-feedback.csv";a.click();setTimeout(()=>URL.revokeObjectURL(url),1500);toast("Feedback geëxporteerd");
+}
+
+/* ================= Jaarplanning: export / import (Excel/CSV) ================= */
+function loadXLSX(){return new Promise((res,rej)=>{if(window.XLSX)return res(window.XLSX);const s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js";s.onload=()=>res(window.XLSX);s.onerror=()=>rej(new Error("xlsx"));document.head.appendChild(s);});}
+function downloadCsvRows(name,rows){const csv=rows.map(r=>r.map(c=>'"'+String(c==null?"":c).replace(/"/g,'""')+'"').join(";")).join("\r\n");const blob=new Blob(["﻿"+csv],{type:"text/csv;charset=utf-8"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1500);}
+function parseCsv(text){text=text.replace(/^﻿/,"");const nl=text.indexOf("\n");const first=nl>=0?text.slice(0,nl):text;const delim=(first.split(";").length>first.split(",").length)?";":",";const rows=[];let row=[],field="",q=false;for(let i=0;i<text.length;i++){const ch=text[i];if(q){if(ch==='"'){if(text[i+1]==='"'){field+='"';i++;}else q=false;}else field+=ch;}else{if(ch==='"')q=true;else if(ch===delim){row.push(field);field="";}else if(ch==="\n"){row.push(field);rows.push(row);row=[];field="";}else if(ch==="\r"){}else field+=ch;}}if(field.length||row.length){row.push(field);rows.push(row);}return rows;}
+function planningRows(){const rows=[["Week","Datum","Maand","Fase","Maandag","Dinsdag","Woensdag","Donderdag","Vrijdag"]];(S.weeks||[]).forEach(w=>{const r=[w.w,w.d,w.m,w.p];for(let day=0;day<5;day++){const se=w.s[day]||{t:"",na:true};r.push(se.na?"n.v.t.":se.t);}rows.push(r);});return rows;}
+function rowsToWeeks(rows){const out=[];for(let r=1;r<rows.length;r++){const row=rows[r]||[];if(row.every(c=>String(c==null?"":c).trim()===""))continue;const s=[];for(let c=4;c<=8;c++){const v=(row[c]==null?"":String(row[c])).trim();const na=(v===""||/^n\.?\s*v\.?\s*t\.?$/i.test(v));s.push({t:na?"n.v.t.":v,na});}out.push({s});}return out;}
+function mergePlanning(newWeeks){const today=new Date();today.setHours(0,0,0,0);let updated=0,kept=0;for(let i=0;i<S.weeks.length;i++){const nw=newWeeks[i];for(let day=0;day<5;day++){const occurred=sessDate(i,day)<today;if(occurred){kept++;continue;}if(nw&&nw.s&&nw.s[day]){S.weeks[i].s[day]={t:nw.s[day].t,na:!!nw.s[day].na};updated++;}}}return {updated,kept};}
+async function exportPlanning(){const rows=planningRows();try{const XLSX=await loadXLSX();const ws=XLSX.utils.aoa_to_sheet(rows);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Planning");XLSX.writeFile(wb,"YP-jaarplanning.xlsx");toast("Huidige planning geëxporteerd (.xlsx)");}catch(e){downloadCsvRows("YP-jaarplanning.csv",rows);toast("Huidige planning geëxporteerd (.csv)");}}
+async function importPlanning(file){if(!file)return;const nm=(file.name||"").toLowerCase();try{let rows;if(nm.endsWith(".csv")){rows=parseCsv(await file.text());}else{const XLSX=await loadXLSX();const wb=XLSX.read(await file.arrayBuffer(),{type:"array"});const ws=wb.Sheets[wb.SheetNames[0]];rows=XLSX.utils.sheet_to_json(ws,{header:1});}if(!rows||rows.length<2){toast("Geen planningsrijen gevonden in het bestand");return;}const res=mergePlanning(rowsToWeeks(rows));await Store.savePlanning();render();toast(res.updated+" toekomstige sessies bijgewerkt · "+res.kept+" reeds plaatsgevonden behouden");}catch(e){toast("Inlezen mislukt — gebruik het geëxporteerde sjabloon en behoud de kolommen");}}
+
+/* ================= Mutaties ================= */
+async function setStatus(i,day,st){const tid=me.role!=="trainee"?(UI.viewTrainee||me.id):me.id;const patch=(st==="cancelled")?{st,att:null}:{st};await Store.saveProgress(tid,i,day,patch);render();}
+async function setAtt(i,day,a){const tid=me.role!=="trainee"?(UI.viewTrainee||me.id):me.id;const cur=prog(tid,i,day).att;await Store.saveProgress(tid,i,day,{att:cur===a?null:a});render();}
+async function verifyAtt(tid,i,day,a){const cur=prog(tid,i,day).att;await Store.saveProgress(tid,i,day,{att:cur===a?null:a});render();}
+async function setAssign(i,day,email){const t=email?availableTrainers().find(x=>x.email===(email||"").toLowerCase()):null;await Store.setAssign(i,day,t?{email:t.email,name:t.name}:null);render();toast(t?("Trainer toegewezen: "+t.name):"Trainer-toewijzing verwijderd");}
+async function setLoc(i,day,v){const tid=me.role!=="trainee"?(UI.viewTrainee||me.id):me.id;await Store.saveProgress(tid,i,day,{loc:v});render();}
+function setRate(n){UI.curRate=n;document.querySelectorAll(".rate").forEach(box=>box.querySelectorAll("span").forEach(s=>s.textContent=(+s.dataset.n<=n)?"★":"☆"));}
+function roleLabel(role){return role==="manager"?"Manager":role==="trainer"?"Trainer":"Deelnemer";}
+async function submitFb(i,day){
+ const name=document.getElementById("fbName").value.trim()||me.name;
+ const text=document.getElementById("fbText").value.trim();if(!text){document.getElementById("fbText").focus();return;}
+ const tid=me.role==="trainee"?me.id:(UI.viewTrainee||(document.getElementById("fbTid")?document.getElementById("fbTid").value:me.id));
+ const fb={id:"f"+Date.now().toString(36)+Math.floor(Math.random()*1e4).toString(36),tid,wi:i,day,a:name,r:roleLabel(me.role),dt:new Date().toISOString().slice(0,10),rt:UI.curRate,c:text};
+ await Store.addFeedback(fb);UI.curRate=0;render();toast("Feedback geplaatst");
+}
+async function submitOverall(tid){
+ const name=(document.getElementById("ofbName").value||"").trim()||me.name;
+ const text=(document.getElementById("ofbText").value||"").trim();if(!text){document.getElementById("ofbText").focus();return;}
+ const fb={id:"f"+Date.now().toString(36)+Math.floor(Math.random()*1e4).toString(36),tid,wi:-1,day:-1,a:name,r:roleLabel(me.role),dt:new Date().toISOString().slice(0,10),rt:UI.curRate,c:text};
+ await Store.addFeedback(fb);UI.curRate=0;render();toast("Feedback geplaatst");
+}
+async function delFb(fid){const f=(S.feedback||[]).find(x=>x.id===fid);if(!f)return;await Store.delFeedback(f);render();}
+
+/* ================= UI-acties ================= */
+function setTab(t){UI.tab=t;UI.viewTrainee=null;render();}
+function openTrainee(tid){UI.viewTrainee=tid;UI.tab="trainee";render();}
+function defaultTab(){return (me&&me.role==="trainee")?"planning":"dashboard";}
+function backDash(){UI.viewTrainee=null;UI.tab="dashboard";render();}
+function openDay(i,day){if(isNa(i,day))return;UI.open={i,day};UI.curRate=0;render();document.getElementById("scrim").classList.add("on");document.getElementById("drawer").classList.add("on");}
+function closeDrawer(){UI.open=null;document.getElementById("scrim").classList.remove("on");document.getElementById("drawer").classList.remove("on");}
+function jumpNow(){const el=document.getElementById("wk"+todayW());if(el)el.scrollIntoView({behavior:"smooth",block:"center"});}
+
+/* ================= Render ================= */
+function render(){
+ const app=document.getElementById("app");
+ if(!Auth.signedIn()){app.innerHTML=viewLogin();closeDrawer();return;}
+ if(me&&me.allowed===false){app.innerHTML=viewDenied();closeDrawer();return;}
+ if(!UI.tab)UI.tab=defaultTab();
+ app.innerHTML=chrome()+'<div class="wrap" id="main">'+mainView()+'</div>';
+ if(UI.open)document.getElementById("drawerInner").innerHTML=viewDrawer();
+}
+function chrome(){
+ const storeLbl=Store.mode==="graph"?"Gedeeld (SharePoint)":(Auth.mode==="msal"?"Aangemeld":"Demo-modus");
+ const roleLbl=me.role==="manager"?"Manager":me.role==="trainer"?"Trainer":"Young Professional";
+ let tabs;
+ if(me.role==="manager")tabs=[["dashboard","Dashboard"],["feedback","Feedback"],["planning","Planning"],["beheer","Beheer"]];
+ else if(me.role==="trainer")tabs=[["dashboard","Dashboard"],["feedback","Feedback"],["planning","Programma"]];
+ else tabs=[["planning","Mijn planning"],["dashboard","Mijn voortgang"],["mijnfeedback","Mijn feedback"]];
+ return '<div class="topbar"><div class="wrap"><div class="thead">'
+  +'<img class="logo" src="'+LOGO+'" alt="Zig">'
+  +'<div class="ttitle"><h1>Young Professional</h1><div class="sub">'+esc(S.cohortName||"")+' &middot; '+(me.role!=="trainee"?"Voortgang, aanwezigheid &amp; feedback":"Jouw voortgang, planning &amp; feedback")+'</div></div>'
+  +'<div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">'
+  +'<div class="userchip"><div class="av">'+initials(me.name)+'</div><div><div class="un">'+esc(me.name)+'</div><div class="ur">'+roleLbl+'</div></div><button class="linkbtn" data-act="logout">Afmelden</button></div>'
+  +'<span class="store-badge '+(Store.mode==="graph"?"":"local")+'"><span class="sd"></span>'+storeLbl+'</span>'
+  +'</div></div>'
+  +'<div class="tabs">'+tabs.map(([k,l])=>'<button class="tab '+(UI.tab===k?"on":"")+'" data-act="tab" data-tab="'+k+'">'+l+'</button>').join("")+'</div>'
+  +'</div></div>';
+}
+function mainView(){
+ if(me.role!=="trainee"){                        // manager of trainer
+   if(UI.viewTrainee)return viewTraineeDetail(UI.viewTrainee);
+   if(UI.tab==="feedback")return viewMgrFeedback();
+   if(UI.tab==="planning")return viewPlanning(null,true);
+   if(UI.tab==="beheer"&&me.role==="manager")return viewAdmin();
+   return viewDashboard();
+ }else{
+   if(UI.tab==="mijnfeedback")return viewMyFeedback();
+   if(UI.tab==="planning")return viewPlanning(me.id,false);
+   return viewMyDashboard();
+ }
+}
+
+/* ---------- Login ---------- */
+function viewLogin(){
+ let h='<div class="login"><div class="loginbox"><img class="lg" src="'+LOGO+'" alt="Zig" style="filter:none;height:38px"><h1>Young Professional</h1><p>Log in met je Zig-account (Microsoft-SSO) om je planning, feedback en voortgang te bekijken.</p>';
+ if(Auth.mode==="msal"){
+   h+='<button class="msbtn" data-act="login"><span style="font-size:16px">🔐</span> Inloggen met Microsoft</button>';
+   h+='<p style="margin-top:14px;font-size:11.5px">Je wordt veilig aangemeld via je Zig-account in Microsoft Entra ID (Zig AD). Toegang is beperkt tot een selecte groep.</p>';
+ }else{
+   h+='<div class="demo-sep">Demo — kies een profiel</div><div class="demorow">';
+   h+='<button class="demobtn" data-act="demo" data-who="mgr"><span class="av" style="background:var(--blue)">JC</span><span>Jarno Cislo<small>Manager · dashboard over alle young professionals</small></span></button>';
+   h+='<button class="demobtn" data-act="demo" data-who="trn"><span class="av" style="background:var(--cyan);color:#062a33">'+initials("Peter Smit")+'</span><span>Peter Smit<small>Trainer · programma, aanwezigheid &amp; feedback</small></span></button>';
+   (S.trainees||[]).forEach(t=>{h+='<button class="demobtn" data-act="demo" data-who="'+t.id+'"><span class="av" style="background:'+colorFor(t.name)+'">'+initials(t.name)+'</span><span>'+esc(t.name.replace(/\s*\(demo\)/i,""))+'<small>Young Professional · eigen voortgang &amp; feedback</small></span></button>';});
+   h+='</div><p style="margin-top:16px;font-size:11.5px">Dit is de demo-modus met voorbeeldprofielen. Zodra IT de SSO configureert (zie hieronder), logt iedereen in met een echt Zig-account.</p>';
+ }
+ h+=itSetupPanel();
+ h+='</div></div>';return h;
+}
+/* Zelfdocumenterend paneel voor IT — zichtbaar op het inlogscherm. */
+function itSetupPanel(){
+ const uri=location.origin+location.pathname;
+ return '<details class="itsetup"><summary>Voor IT — SSO &amp; groepstoegang aanzetten (zonder extra kosten)</summary>'
+  +'<ol>'
+  +'<li><b>App-registratie (gratis — Entra ID Free).</b> Entra-portal → App-registraties → Nieuwe registratie. Platform <b>Single-page application (SPA)</b>, Redirect-URI: <code>'+esc(uri)+'</code>. Accounts: alleen deze organisatiemap (Zig).</li>'
+  +'<li><b>API-machtigingen (gedelegeerd):</b> <code>User.Read</code>, <code>Calendars.ReadWrite</code>, <code>Sites.ReadWrite.All</code> → beheerderstoestemming verlenen.</li>'
+  +'<li><b>Client-ID koppelen:</b> vul de Application (client) ID in bij <code>CONFIG.auth.clientId</code>, óf open de app als <code>'+esc(uri)+'?clientId=&lt;GUID&gt;</code>.</li>'
+  +'<li><b>Beperken tot een selecte groep:</b> beheer de groep het makkelijkst via het tabblad <b>Beheer</b> in de app zelf — managers voegen daar personen toe of verwijderen ze. Maak daarvoor op de Academy-site een SharePoint-lijst <code>YP_Access</code> met kolommen <code>Title</code> (naam), <code>Email</code> en <code>Role</code>, zodat de lijst voor iedereen geldt. Voor trainer-toewijzingen komt er ook een lijst <code>YP_Assign</code> (<code>Wi</code>, <code>Day</code>, <code>TrainerEmail</code>, <code>TrainerName</code>), en voor de aanpasbare jaarplanning een lijst <code>YP_Config</code> (<code>Title</code>, <code>Data</code>). Voeg aan <code>YP_Progress</code> een kolom <code>Location</code> toe voor op locatie/remote. Voor een harde grens kun je in Entra daarnaast <b>Toewijzing vereist = Ja</b> zetten en de personen (of een security-groep bij Entra ID P1, bv. M365 Business Premium / E3) toewijzen — geen extra kosten.</li>'
+  +'<li><b>Manager of young professional:</b> maak optioneel app-rollen <code>Manager</code> en <code>Young Professional</code> en wijs ze toe, of laat de manager-e-mails in <code>CONFIG.managers</code> staan.</li>'
+  +'<li><b>Hosten (gratis):</b> plaats dit ene HTML-bestand op bv. Azure Static Web Apps (Free-plan) of een interne webserver, en registreer die URL als Redirect-URI (stap 1).</li>'
+  +'</ol>'
+  +'<div class="free">✓ Alles valt binnen bestaande Microsoft 365-licenties. Er zijn geen extra licenties of abonnementen nodig.</div>'
+  +'</details>';
+}
+/* Getoond wanneer iemand wél inlogt maar niet tot de selecte groep behoort. */
+function viewDenied(){
+ const mail=(CONFIG.access&&CONFIG.access.contact)||"";
+ const subj=encodeURIComponent("Toegang aanvragen — Young Professional");
+ const body=encodeURIComponent("Hoi,\n\nIk wil graag toegang tot het Young Professional-programma.\nAccount: "+((me&&me.email)||"")+"\n\nGroet,");
+ let h='<div class="login"><div class="loginbox">'
+  +'<img class="lg" src="'+LOGO+'" alt="Zig" style="filter:none;height:38px">'
+  +'<h1>Geen toegang</h1>'
+  +'<p>Je bent aangemeld als <b>'+esc((me&&me.email)||"")+'</b>, maar dit account heeft (nog) geen toegang tot het Young Professional-programma. Toegang is beperkt tot een selecte groep managers en medewerkers binnen Zig.</p>';
+ if(mail)h+='<a class="btn block" style="text-decoration:none;margin-bottom:9px" href="mailto:'+esc(mail)+'?subject='+subj+'&body='+body+'">Toegang aanvragen</a>';
+ h+='<button class="btn ghost block" data-act="logout">Afmelden / ander account</button>';
+ h+='</div></div>';return h;
+}
+
+/* ---------- Planning (trainee = eigen; manager = template read-only) ---------- */
+function phaseTimeline(){
+ return '<div class="phaserow">'+(S.phases||[]).map(p=>{const wr=(S.weeks[p.startW]?S.weeks[p.startW].w:"")+" – "+(S.weeks[p.endW]?S.weeks[p.endW].w:"");const on=UI.phase===String(p.id);return '<button class="phase" style="background:linear-gradient(135deg,'+p.color+','+p.color+'cc);'+(on?"box-shadow:0 0 0 3px var(--text);":"")+'" data-act="phase" data-p="'+p.id+'"><div class="ph">'+esc(p.head)+'</div><div class="pt">'+esc(p.title)+'</div><div class="pw">'+esc(wr)+'</div></button>';}).join("")+'</div>';
+}
+function viewPlanning(tid,mgrTemplate){
+ const tw=todayW();
+ let h=phaseTimeline();
+ h+='<div class="filters"><input class="grow" id="qbox" placeholder="Zoek in activiteiten…" value="'+esc(UI.q)+'" data-act="search">'
+  +'<select style="width:auto" data-act="phaseSel"><option value="all"'+(UI.phase==="all"?" selected":"")+'>Alle fases</option>'+(S.phases||[]).map(p=>'<option value="'+p.id+'"'+(UI.phase===String(p.id)?" selected":"")+'>'+esc(p.head)+'</option>').join("")+'</select>'
+  +(tw>=0?'<button class="btn cyan sm" data-act="jumpNow">Naar deze week</button>':"")
+  +(tid?'<button class="btn ghost sm" data-act="exportAll">📅 Hele planning → Outlook</button>':"")
+  +'</div>';
+ h+='<div id="wlist">'+weekListHtml(tid,mgrTemplate)+'</div>';
+ return h;
+}
+function weekMatch(w){if(UI.phase!=="all"&&String(w.p)!==UI.phase)return false;const q=UI.q.trim().toLowerCase();if(q&&!(w.s.some(se=>(se.t||"").toLowerCase().includes(q))||w.w.toLowerCase().includes(q)))return false;return true;}
+function weekListHtml(tid,mgrTemplate){
+ const tw=todayW();const ws=(S.weeks||[]).filter(weekMatch);
+ if(!ws.length)return '<div class="empty">Geen weken met deze filters.</div>';
+ return ws.map(w=>{const p=S.phases[w.p]||{color:"var(--blue)"};const now=w.i===tw;
+  const days=w.s.map((se,day)=>{const na=se.na;const t=se.t;
+   let dot="",fbBadge="",calBadge="",attBadge="",trBadge="",cancelled=false,locBadge="";
+   if(!na){const str=sessionTrainer(w.i,day);if(str)trBadge='<span class="mini trn" title="Trainer: '+esc(str.name)+'">👤 '+esc((str.name||"").split(" ")[0])+'</span>';
+    if(tid){const pr=prog(tid,w.i,day);const stc=STATUS[pr.st]||STATUS.planned;if(pr.st==="cancelled")cancelled=true;dot='<span class="dot" style="background:'+stc.c+'" title="'+stc.l+'"></span>';if(pr.cs)calBadge='<span class="mini cal">📅</span>';if(pr.att&&ATT[pr.att])attBadge='<span class="mini att">✓ '+ATT[pr.att].l+'</span>';const fn=fbFor(tid,w.i,day).length;if(fn)fbBadge='<span class="mini fb">💬 '+fn+'</span>';if(pr.st!=="cancelled")locBadge=(pr.loc==="remote")?'<span class="mini loc">🏠 Remote</span>':'<span class="mini locon" title="Op locatie">🏢</span>';}
+    else{const fn=fbSession(w.i,day).length;if(fn)fbBadge='<span class="mini fb">💬 '+fn+'</span>';dot='<span class="dot" style="background:'+p.color+'"></span>';}
+   }
+   return '<button class="day '+(na?"na":(cancelled?"vervallen":""))+'" '+(na?"disabled":'data-act="openDay" data-i="'+w.i+'" data-day="'+day+'"')+'><div class="dtop"><span class="dname">'+DSHORT[day]+'</span><span class="ddate">'+fmtShort(sessDate(w.i,day))+'</span></div><div class="dtitle">'+(na?'<span class="muted">n.v.t.</span>':esc(t).replace(/\n/g,"<br>"))+'</div><div class="dfoot">'+dot+fbBadge+calBadge+attBadge+trBadge+locBadge+'</div></button>';
+  }).join("");
+  const syncBtn=tid?'<button class="btn ghost sm" style="margin-inline-start:10px" data-act="syncWeek" data-i="'+w.i+'">📅 Sync week</button>':"";
+  return '<div class="card week '+(now?"now":"")+'" id="wk'+w.i+'"><div class="whead"><div class="wstripe" style="background:'+p.color+'"></div><div style="flex:1"><div class="wtitle">'+esc(w.w)+' <span class="wsub">· '+esc(w.d)+'</span></div><div class="wsub">'+esc(p.head)+' — '+esc(p.title)+'</div></div>'+(now?'<span class="nowbadge">DEZE WEEK</span>':"")+syncBtn+'</div><div class="days">'+days+'</div></div>';
+ }).join("");
+}
+
+/* ---------- Drawer ---------- */
+function viewDrawer(){
+ const {i,day}=UI.open;const w=S.weeks[i];const se=w.s[day];const p=S.phases[w.p]||{};const d=sessDate(i,day);
+ let h='<div class="dhead"><div style="display:flex;align-items:flex-start;gap:12px"><div style="flex:1"><div class="wsub" style="color:'+(p.color||"var(--blue)")+'">'+esc(p.head)+' — '+esc(p.title)+'</div><h2 style="font-size:18px;margin-top:3px">'+esc(w.w)+' · '+DAYS[day]+'</h2><div class="wsub">'+fmt(d)+' · 09:00–17:00</div></div><button class="x" data-act="closeDrawer">×</button></div></div><div class="dbody">';
+ h+='<div class="sect">Activiteit</div><div class="card" style="padding:12px 14px;white-space:pre-wrap;font-weight:600">'+esc(se.t)+'</div>';
+ h+=trainerBlock(i,day);
+
+ if(me.role!=="trainee" && !UI.viewTrainee){
+   // Manager/trainer op de programma-planning -> aanwezigheid verifiëren per trainee + feedback deze sessie
+   h+='<div class="sect">Aanwezigheid verifiëren</div>';
+   (S.trainees||[]).forEach(t=>{const pr=prog(t.id,i,day);const stc=STATUS[pr.st]||STATUS.planned;
+     h+='<div class="sh" style="border:1px solid var(--border);border-radius:12px;margin-bottom:8px;padding:10px 12px;flex-wrap:wrap"><div class="avatar" style="background:'+colorFor(t.name)+'">'+initials(t.name)+'</div><div style="flex:1"><div style="font-weight:700">'+esc(t.name.replace(/\s*\(demo\)/i,""))+'</div></div><span class="pill" style="background:var(--surface2);color:'+stc.c+'">'+stc.l+'</span>'
+       +(pr.st!=="cancelled"?'<span class="pill" style="background:var(--surface2);color:'+LOC[pr.loc||"onsite"].c+';margin-inline-start:6px">'+LOC[pr.loc||"onsite"].l+'</span>':"")
+       +(pr.st==="cancelled"?'<div class="muted" style="flex-basis:100%;margin:8px 0 0;font-size:12px">Niet van toepassing — sessie vervallen</div>':'<div class="seg" style="flex-basis:100%;margin:8px 0 0">'+Object.keys(ATT).map(s=>{const on=pr.att===s;return '<button class="segb" style="'+(on?"color:#fff;background:"+ATT[s].c+";border-color:"+ATT[s].c:"")+'" data-act="verifyAtt" data-tid="'+t.id+'" data-i="'+i+'" data-day="'+day+'" data-v="'+s+'">'+ATT[s].l+'</button>';}).join("")+'</div>')+'</div>';});
+   // Overzicht per sessie: wie op locatie en wie remote
+   const _onL=[],_reL=[];(S.trainees||[]).forEach(t=>{((prog(t.id,i,day).loc||"onsite")==="remote"?_reL:_onL).push(esc(t.name.replace(/\s*\(demo\)/i,"")));});
+   h+='<div class="sect">Locatie deze sessie</div>';
+   h+='<div class="sh" style="border:1px solid var(--border);border-radius:12px;margin-bottom:8px;padding:9px 12px"><span class="pill" style="background:var(--surface2);color:'+LOC.onsite.c+'">Op locatie · '+_onL.length+'</span><div style="flex:1;font-size:12.5px">'+(_onL.length?_onL.join(", "):'<span class="muted">—</span>')+'</div></div>';
+   h+='<div class="sh" style="border:1px solid var(--border);border-radius:12px;margin-bottom:8px;padding:9px 12px"><span class="pill" style="background:var(--surface2);color:'+LOC.remote.c+'">Remote · '+_reL.length+'</span><div style="flex:1;font-size:12.5px">'+(_reL.length?_reL.join(", "):'<span class="muted">—</span>')+'</div></div>';
+   if(isMyTrainerSession(i,day)){
+     const fbs=fbSession(i,day);
+     h+='<div class="sect">Feedback deze sessie ('+fbs.length+')</div>';
+     if(!fbs.length)h+='<div class="muted" style="font-size:13px">Nog geen feedback voor deze sessie.</div>';
+     fbs.slice().reverse().forEach(f=>{const t=trainee(f.tid);h+=fbCard(f,t,me.role==="manager");});
+   }else{
+     h+='<div class="sect">Feedback deze sessie</div><div class="muted" style="font-size:13px">Deze sessie is aan een andere trainer toegewezen; feedback is daarom niet zichtbaar.</div>';
+   }
+ }else{
+   const tid=me.role!=="trainee"?UI.viewTrainee:me.id;
+   const pr=prog(tid,i,day);
+   const canEdit=true; // trainee werkt eigen sessie bij; manager/trainer verifiëren namens de trainee
+   if(canEdit){
+     h+='<div class="sect">Status</div><div class="seg">'+["planned","done","cancelled"].map(s=>{const on=pr.st===s;return '<button class="segb" style="'+(on?"color:#fff;background:"+STATUS[s].c+";border-color:"+STATUS[s].c:"")+'" data-act="setStatus" data-i="'+i+'" data-day="'+day+'" data-v="'+s+'">'+STATUS[s].l+'</button>';}).join("")+'</div>';
+     h+='<div class="sect">Aanwezigheid</div>';
+     if(pr.st==="cancelled")h+='<div class="pill" style="background:var(--surface2);color:var(--dim)">Niet van toepassing — sessie vervallen</div>';
+     else h+='<div class="seg">'+Object.keys(ATT).map(s=>{const on=pr.att===s;return '<button class="segb" style="'+(on?"color:#fff;background:"+ATT[s].c+";border-color:"+ATT[s].c:"")+'" data-act="setAtt" data-i="'+i+'" data-day="'+day+'" data-v="'+s+'">'+ATT[s].l+'</button>';}).join("")+'</div>';
+     if(pr.st!=="cancelled"){
+       h+='<div class="sect">Locatie</div>';
+       if(me.role==="trainee"||me.role==="manager")h+='<div class="seg">'+Object.keys(LOC).map(s=>{const on=(pr.loc||"onsite")===s;return '<button class="segb" style="'+(on?"color:#fff;background:"+LOC[s].c+";border-color:"+LOC[s].c:"")+'" data-act="setLoc" data-i="'+i+'" data-day="'+day+'" data-v="'+s+'">'+LOC[s].l+'</button>';}).join("")+'</div>';
+       else h+='<div class="pill" style="background:var(--surface2);color:'+LOC[pr.loc||"onsite"].c+'">'+LOC[pr.loc||"onsite"].l+'</div>';
+     }
+   }
+   if(me.role==="trainee"){
+     h+='<div class="sect">Outlook-agenda</div>';
+     if(pr.cs)h+='<div class="pill" style="background:rgba(0,208,255,.16);color:#0a7c93">📅 In je agenda gezet</div><div style="margin-top:8px"><button class="btn cyan sm" data-act="addCal" data-i="'+i+'" data-day="'+day+'">Opnieuw toevoegen</button></div>';
+     else h+='<button class="btn cyan" data-act="addCal" data-i="'+i+'" data-day="'+day+'">📅 Toevoegen aan mijn agenda</button><div class="muted" style="font-size:12px;margin-top:6px">Zet deze sessie (09:00–17:00, met herinnering) in je Outlook-agenda.</div>';
+   }
+   if(me.role==="trainer" && !isMyTrainerSession(i,day)){
+     h+='<div class="sect">Feedback</div><div class="muted" style="font-size:13px">Deze sessie is aan een andere trainer toegewezen; feedback is niet zichtbaar.</div>';
+   }else{
+     const fbs=fbFor(tid,i,day);
+     h+='<div class="sect">Feedback ('+fbs.length+')</div>';
+     if(!fbs.length)h+='<div class="muted" style="font-size:13px;margin-bottom:8px">Nog geen feedback voor deze sessie.</div>';
+     fbs.slice().reverse().forEach(f=>{h+=fbCard(f,null,me.role!=="trainee");});
+     h+=fbForm(i,day);
+   }
+ }
+ h+='</div>';return h;
+}
+function fbCard(f,t,canDel){
+ return '<div class="fbitem"><div class="fbtop"><div class="avatar" style="background:'+(f.r==="Manager"?"var(--blue)":f.r==="Trainer"?"var(--cyan)":colorFor(f.a))+'">'+initials(f.a)+'</div><div style="flex:1"><div style="font-weight:800;font-size:13px">'+esc(f.a)+' <span class="muted" style="font-weight:600">· '+esc(f.r)+'</span></div>'+(t?'<div class="muted" style="font-size:11px">'+esc(t.name.replace(/\s*\(demo\)/i,""))+' · '+esc(f.dt)+'</div>':'<div class="muted" style="font-size:11px">'+esc(f.dt)+'</div>')+'</div>'+(f.rt?'<div class="stars" title="'+f.rt+'/5">'+stars(f.rt)+'</div>':"")+'</div><div style="font-size:13px;white-space:pre-wrap">'+esc(f.c)+'</div>'+(canDel?'<div style="text-align:end;margin-top:6px"><button class="btn ghost sm" data-act="delFb" data-fid="'+f.id+'">Verwijderen</button></div>':"")+'</div>';
+}
+function fbForm(i,day){
+ return '<div class="card" style="padding:14px;margin-top:10px"><div style="font-weight:800;margin-bottom:8px">Feedback toevoegen</div><input id="fbName" placeholder="Naam" value="'+esc(me.name)+'" style="margin-bottom:8px"><div id="rateBox" class="rate" style="font-size:22px;color:var(--amber);margin-bottom:8px">'+[1,2,3,4,5].map(n=>'<span data-act="rate" data-n="'+n+'">'+(n<=UI.curRate?"★":"☆")+'</span>').join("")+'</div><textarea id="fbText" rows="3" placeholder="Jouw feedback op deze sessie…"></textarea><div style="margin-top:8px"><button class="btn" data-act="submitFb" data-i="'+i+'" data-day="'+day+'">Feedback plaatsen</button></div></div>';
+}
+/* Trainer voor deze sessie: managers wijzen toe; trainer/trainee zien wie het is. */
+function trainerBlock(i,day){
+ const cur=sessionTrainer(i,day);
+ let h='<div class="sect">Trainer</div>';
+ if(me.role==="manager"){
+   const opts=availableTrainers();
+   h+='<select data-act="assignTrainer" data-i="'+i+'" data-day="'+day+'"><option value="">— Geen trainer toegewezen —</option>'+opts.map(o=>'<option value="'+esc(o.email)+'"'+(cur&&(cur.email||"").toLowerCase()===o.email?" selected":"")+'>'+esc(o.name)+'</option>').join("")+'</select>';
+   if(!opts.length)h+='<div class="muted" style="font-size:12px;margin-top:6px">Nog geen trainers beschikbaar — voeg ze toe via het tabblad Beheer.</div>';
+ }else{
+   if(cur)h+='<div class="sh" style="border:1px solid var(--border);border-radius:12px;padding:9px 12px"><div class="avatar" style="background:var(--cyan);color:#062a33">'+initials(cur.name)+'</div><div style="flex:1"><div style="font-weight:700">'+esc(cur.name)+'</div><div class="muted" style="font-size:12px">Trainer voor deze sessie</div></div></div>';
+   else h+='<div class="muted" style="font-size:13px">Nog geen trainer toegewezen.</div>';
+ }
+ return h;
+}
+
+/* ---------- Manager: dashboard ---------- */
+function viewDashboard(){
+ const ts=S.trainees||[];
+ let totPct=0,totAtt=0,attN=0,fbTot=0,rSum=0,rN=0,remoteTot=0,onsiteTot=0;
+ const fbV=feedbackVisibleToMe();
+ const cards=ts.map(t=>{const s=stats(t.id,fbV);totPct+=s.pct;if(s.attPct!=null){totAtt+=s.attPct;attN++;}fbTot+=s.fb;remoteTot+=s.remote;onsiteTot+=s.onsite;const fb=fbV.filter(f=>f.tid===t.id&&f.rt);fb.forEach(f=>{rSum+=f.rt;rN++;});return {t,s};});
+ const avgPct=ts.length?Math.round(totPct/ts.length):0;
+ const avgAtt=attN?Math.round(totAtt/attN):null;
+ const avgR=rN?(rSum/rN).toFixed(1):"–";
+ const locTot=onsiteTot+remoteTot;const remPct=locTot?Math.round(remoteTot/locTot*100):0;const onPct=100-remPct;
+ let h='<div class="kpis">'+kpi(ts.length,"Young Professionals")+kpi(avgPct+"%","Gem. voortgang","var(--blue)")+kpi(avgAtt==null?"–":avgAtt+"%","Gem. aanwezigheid","var(--green)")+kpi(fbTot,"Feedback-items","var(--cyan)")+kpi(avgR+(rN?" ★":""),"Gem. beoordeling","var(--amber)")+kpi(onPct+"% / "+remPct+"%","Op locatie / Remote","var(--cyan)")+'</div>';
+ if(me.role==="trainer")h+='<div class="hint">Feedback en beoordelingen tellen alleen mee voor de sessies die aan jou zijn toegewezen. Voortgang, aanwezigheid en locatie tonen het hele programma.</div>';
+ h+='<h3 style="font-size:15px;margin:6px 0 10px">Voortgang per young professional</h3>';
+ h+='<div class="tgrid">'+cards.map(({t,s})=>{const col=colorFor(t.name);const remP=s.total?Math.round(s.remote/s.total*100):0;const onP=100-remP;return '<div class="card tcard" data-act="openTrainee" data-tid="'+t.id+'"><div class="th"><div class="avatar big" style="background:'+col+'">'+initials(t.name)+'</div><div><div style="font-weight:800;font-size:15px">'+esc(t.name.replace(/\s*\(demo\)/i,""))+'</div><div class="muted" style="font-size:12px">'+esc(t.email)+'</div></div></div><div class="progrow" style="margin:0"><div class="bar"><i style="width:'+s.pct+'%;background:'+col+'"></i></div><div style="width:44px;text-align:end;font-weight:800;font-size:13px">'+s.pct+'%</div></div><div class="tstat"><div><b>'+s.done+'/'+s.total+'</b>Afgerond</div><div><b>'+(s.attPct==null?"–":s.attPct+"%")+'</b>Aanwezig</div><div><b>'+(s.avg?s.avg.toFixed(1)+" ★":"–")+'</b>Beoordeling</div><div><b>'+s.fb+'</b>Feedback</div><div><b>'+onP+'%</b>Op locatie</div><div><b>'+remP+'%</b>Remote</div></div></div>';}).join("")+'</div>';
+ // voortgang per fase (aggregaat)
+ h+='<div class="card" style="padding:18px;margin-top:18px"><h3 style="font-size:15px;margin-bottom:12px">Voortgang per fase (alle young professionals)</h3>';
+ (S.phases||[]).forEach(p=>{let tot=0,done=0;S.weeks.filter(w=>w.p===p.id).forEach(w=>w.s.forEach((se,day)=>{if(se.na)return;ts.forEach(t=>{tot++;if(prog(t.id,w.i,day).st==="done")done++;});}));const pct=tot?Math.round(done/tot*100):0;h+='<div class="progrow"><div class="pl">'+esc(p.head)+' · '+esc(p.title)+'</div><div class="bar"><i style="width:'+pct+'%;background:'+p.color+'"></i></div><div style="width:56px;text-align:end;font-weight:700;font-size:12px">'+pct+'%</div></div>';});
+ h+='</div>';
+ h+='<div class="card" style="padding:18px;margin-top:18px"><h3 style="font-size:15px;margin-bottom:12px">Locatie-overzicht (alle young professionals)</h3>'
+  +'<div class="progrow"><div class="pl">Op locatie</div><div class="bar"><i style="width:'+onPct+'%;background:var(--blue)"></i></div><div style="width:56px;text-align:end;font-weight:800;font-size:13px">'+onPct+'%</div></div>'
+  +'<div class="progrow"><div class="pl">Remote</div><div class="bar"><i style="width:'+remPct+'%;background:var(--cyan)"></i></div><div style="width:56px;text-align:end;font-weight:800;font-size:13px">'+remPct+'%</div></div>'
+  +'</div>';
+ return h;
+}
+/* ---------- Manager: feedback per sessie ---------- */
+function viewMgrFeedback(){
+ const ts=S.trainees||[];
+ let items=feedbackVisibleToMe().slice().sort((a,b)=>(b.dt||"").localeCompare(a.dt||"")||b.wi-a.wi);
+ if(UI.fbTrainee!=="all")items=items.filter(f=>f.tid===UI.fbTrainee);
+ let h='<div class="card" style="padding:16px 18px;margin-top:18px;display:flex;gap:12px;align-items:center;flex-wrap:wrap"><div style="flex:1"><h2 style="font-size:18px">Feedback</h2><div class="muted" style="margin-top:3px">'+(me.role==="trainer"?"Feedback van de sessies die aan jou zijn toegewezen":"Alle feedback van young professionals, trainers en managers — zichtbaar voor managers")+'. Totaal: '+items.length+'</div></div>'
+  +'<select style="width:auto" data-act="fbTrainee"><option value="all">Alle young professionals</option>'+ts.map(t=>'<option value="'+t.id+'"'+(UI.fbTrainee===t.id?" selected":"")+'>'+esc(t.name.replace(/\s*\(demo\)/i,""))+'</option>').join("")+'</select>'
+  +(items.length?'<button class="btn ghost sm" data-act="exportFb">Exporteer (.csv)</button>':"")+'</div>';
+ if(!items.length)return h+'<div class="empty">Nog geen feedback.</div>';
+ h+='<div style="margin-top:14px">'+items.map(f=>{const overall=f.wi<0;const w=overall?null:S.weeks[f.wi];const t=trainee(f.tid);const rtag=f.r==="Manager"?'<span class="tag mgr">Manager</span>':f.r==="Trainer"?'<span class="tag stk">Trainer</span>':'<span class="tag tr">Young Professional</span>';const ref=overall?"Algemene feedback aan de trainee":(esc(w?w.w:"")+' · '+DAYS[f.day]+' · '+fmtShort(sessDate(f.wi,f.day))+' — '+esc(firstLine(w?w.s[f.day].t:"")));const openBtn=overall?'<button class="btn ghost sm" data-act="openTrainee" data-tid="'+f.tid+'">Open</button>':'<button class="btn ghost sm" data-act="openTraineeDay" data-tid="'+f.tid+'" data-i="'+f.wi+'" data-day="'+f.day+'">Open</button>';return '<div class="card" style="padding:14px 16px;margin-bottom:10px"><div style="display:flex;gap:12px;align-items:flex-start"><div class="avatar" style="width:38px;height:38px;font-size:14px;background:'+colorFor(t?t.name:f.a)+'">'+initials(t?t.name:f.a)+'</div><div style="flex:1"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span style="font-weight:800">'+esc(t?t.name.replace(/\s*\(demo\)/i,""):f.a)+'</span><span class="muted" style="font-size:11px">door '+esc(f.a)+'</span>'+rtag+(f.rt?'<span class="stars">'+stars(f.rt)+'</span>':"")+'<span class="muted" style="font-size:12px;margin-inline-start:auto">'+esc(f.dt)+'</span></div><div class="muted" style="font-size:12px;margin:3px 0 7px">'+ref+'</div><div style="font-size:13.5px;white-space:pre-wrap">'+esc(f.c)+'</div></div>'+openBtn+'</div></div>';}).join("")+'</div>';
+ return h;
+}
+/* ---------- Manager: trainee-detail ---------- */
+function viewTraineeDetail(tid){
+ const t=trainee(tid);if(!t)return '<div class="empty">Young Professional niet gevonden.</div>';
+ const s=stats(tid,feedbackVisibleToMe());const col=colorFor(t.name);
+ let h='<button class="backbtn" data-act="backDash">← Terug naar dashboard</button>';
+ h+='<div class="card" style="padding:18px;margin-top:6px;display:flex;gap:14px;align-items:center;flex-wrap:wrap"><div class="avatar big" style="background:'+col+';width:52px;height:52px;font-size:18px">'+initials(t.name)+'</div><div style="flex:1"><h2 style="font-size:19px">'+esc(t.name.replace(/\s*\(demo\)/i,""))+'</h2><div class="muted" style="font-size:12px">'+esc(t.email)+'</div></div></div>';
+ h+='<div class="kpis">'+kpi(s.pct+"%","Voortgang","var(--blue)")+kpi(s.done+"/"+s.total,"Sessies afgerond","var(--green)")+kpi(s.attPct==null?"–":s.attPct+"%","Aanwezigheid","var(--green)")+kpi(s.fb,"Feedback-items","var(--cyan)")+kpi(s.avg?s.avg.toFixed(1)+" ★":"–","Gem. beoordeling","var(--amber)")+'</div>';
+ // Feedback aan deze trainee (algemeen + per sessie), van manager/trainer — ook zichtbaar voor de trainee
+ const given=feedbackVisibleToMe().filter(f=>f.tid===tid&&(f.r==="Manager"||f.r==="Trainer")).sort((a,b)=>(b.dt||"").localeCompare(a.dt||""));
+ h+='<div class="sect">Feedback aan '+esc(t.name.replace(/\s*\(demo\)/i,""))+' ('+given.length+')</div>';
+ if(!given.length)h+='<div class="muted" style="font-size:13px;margin-bottom:8px">Nog geen feedback zichtbaar. '+(me.role==="manager"?"Gebruik het formulier hieronder, of open een sessie in de planning.":"Open een aan jou toegewezen sessie in de planning om feedback te geven.")+'</div>';
+ else given.forEach(f=>{h+=fbCardFull(f,me.role==="manager");});
+ if(me.role==="manager")h+=fbFormOverall(tid);
+ h+='<h3 style="font-size:15px;margin:16px 0 8px">Planning &amp; status van '+esc(t.name.replace(/\s*\(demo\)/i,""))+'</h3>';
+ h+='<div class="hint">Klik op een dag om status/aanwezigheid bij te werken, aanwezigheid te verifiëren of sessie-feedback te geven.</div>';
+ h+=weekListHtml(tid,false);
+ return h;
+}
+/* ---------- Trainee: mijn feedback ---------- */
+function viewMyFeedback(){
+ let items=(S.feedback||[]).filter(f=>f.tid===me.id&&f.r==="Deelnemer"&&f.wi>=0).sort((a,b)=>(b.dt||"").localeCompare(a.dt||"")||b.wi-a.wi);
+ let h='<div class="card" style="padding:16px 18px;margin-top:18px"><h2 style="font-size:18px">Mijn feedback</h2><div class="muted" style="margin-top:3px">Jouw eigen feedback per sessie — zichtbaar voor je manager en trainer. Feedback ván je manager of trainer vind je op je dashboard. Totaal: '+items.length+'</div></div>';
+ if(!items.length)return h+'<div class="empty">Je hebt nog geen feedback geplaatst. Open een sessie in je planning om feedback toe te voegen.</div>';
+ h+='<div style="margin-top:14px">'+items.map(f=>{const w=S.weeks[f.wi];const d=sessDate(f.wi,f.day);return '<div class="card" style="padding:14px 16px;margin-bottom:10px"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:5px">'+(f.rt?'<span class="stars">'+stars(f.rt)+'</span>':"")+'<span class="muted" style="font-size:12px">'+esc(w?w.w:"")+' · '+DAYS[f.day]+' · '+fmtShort(d)+'</span><span class="muted" style="font-size:12px;margin-inline-start:auto">'+esc(f.dt)+'</span></div><div class="muted" style="font-size:12px;margin-bottom:6px">'+esc(firstLine(w?w.s[f.day].t:""))+'</div><div style="font-size:13.5px;white-space:pre-wrap">'+esc(f.c)+'</div><div style="text-align:end;margin-top:6px"><button class="btn ghost sm" data-act="openDay" data-i="'+f.wi+'" data-day="'+f.day+'">Open</button> <button class="btn ghost sm" data-act="delFb" data-fid="'+f.id+'">Verwijderen</button></div></div>';}).join("")+'</div>';
+ return h;
+}
+function kpi(n,l,c){return '<div class="card kpi"><div class="n" style="color:'+(c||"var(--text)")+'">'+n+'</div><div class="l">'+l+'</div></div>';}
+
+/* ---------- Trainee: mijn voortgang (dashboard) ---------- */
+function viewMyDashboard(){
+ const s=stats(me.id);
+ let h='<div class="kpis">'+kpi(s.pct+"%","Voortgang","var(--blue)")+kpi(s.done+"/"+s.total,"Sessies afgerond","var(--green)")+kpi(s.attPct==null?"–":s.attPct+"%","Aanwezigheid","var(--green)")+kpi(s.fb,"Feedback-items","var(--cyan)")+kpi(s.avg?s.avg.toFixed(1)+" ★":"–","Gem. beoordeling","var(--amber)")+'</div>';
+ h+='<div class="card" style="padding:18px;margin-top:6px"><h3 style="font-size:15px;margin-bottom:12px">Mijn voortgang per fase</h3>';
+ (S.phases||[]).forEach(p=>{let tot=0,done=0;S.weeks.filter(w=>w.p===p.id).forEach(w=>w.s.forEach((se,day)=>{if(se.na)return;tot++;if(prog(me.id,w.i,day).st==="done")done++;}));const pct=tot?Math.round(done/tot*100):0;h+='<div class="progrow"><div class="pl">'+esc(p.head)+' · '+esc(p.title)+'</div><div class="bar"><i style="width:'+pct+'%;background:'+p.color+'"></i></div><div style="width:56px;text-align:end;font-weight:700;font-size:12px">'+pct+'%</div></div>';});
+ h+='</div>';
+ const _lt=s.onsite+s.remote;const _rp=_lt?Math.round(s.remote/_lt*100):0;
+ h+='<div class="card" style="padding:18px;margin-top:14px"><h3 style="font-size:15px;margin-bottom:12px">Mijn locatie</h3>'
+  +'<div class="progrow"><div class="pl">Op locatie</div><div class="bar"><i style="width:'+(100-_rp)+'%;background:var(--blue)"></i></div><div style="width:70px;text-align:end;font-weight:700;font-size:12px">'+s.onsite+'</div></div>'
+  +'<div class="progrow"><div class="pl">Remote</div><div class="bar"><i style="width:'+_rp+'%;background:var(--cyan)"></i></div><div style="width:70px;text-align:end;font-weight:700;font-size:12px">'+s.remote+'</div></div>'
+  +'</div>';
+ const forYou=(S.feedback||[]).filter(f=>f.tid===me.id&&(f.r==="Manager"||f.r==="Trainer")).sort((a,b)=>(b.dt||"").localeCompare(a.dt||""));
+ h+='<div class="sect">Feedback voor jou ('+forYou.length+')</div>';
+ if(!forYou.length)h+='<div class="muted" style="font-size:13px">Nog geen feedback van je manager of trainer.</div>';
+ else forYou.forEach(f=>{h+=fbCardFull(f,false);});
+ h+='<div style="margin-top:16px"><button class="btn ghost sm" data-act="tab" data-tab="planning">Naar mijn planning →</button></div>';
+ return h;
+}
+/* Feedbackkaart met sessie-/algemene context (dashboards + trainee-detail). */
+function fbCardFull(f,canDel){
+ const overall=f.wi<0;const w=overall?null:S.weeks[f.wi];
+ const ref=overall?"Algemene feedback":((w?w.w:"")+" · "+DAYS[f.day]+" · "+fmtShort(sessDate(f.wi,f.day))+" — "+firstLine(w?w.s[f.day].t:""));
+ const av=f.r==="Manager"?"var(--blue)":f.r==="Trainer"?"var(--cyan)":colorFor(f.a);
+ return '<div class="fbitem"><div class="fbtop"><div class="avatar" style="background:'+av+'">'+initials(f.a)+'</div><div style="flex:1"><div style="font-weight:800;font-size:13px">'+esc(f.a)+' <span class="muted" style="font-weight:600">· '+esc(f.r)+'</span></div><div class="muted" style="font-size:11px">'+esc(ref)+' · '+esc(f.dt)+'</div></div>'+(f.rt?'<div class="stars" title="'+f.rt+'/5">'+stars(f.rt)+'</div>':"")+'</div><div style="font-size:13px;white-space:pre-wrap">'+esc(f.c)+'</div>'+(canDel?'<div style="text-align:end;margin-top:6px"><button class="btn ghost sm" data-act="delFb" data-fid="'+f.id+'">Verwijderen</button></div>':"")+'</div>';
+}
+/* Formulier voor algemene (ontwikkel)feedback aan een trainee — manager/trainer. */
+function fbFormOverall(tid){
+ return '<div class="card" style="padding:14px;margin-top:4px"><div style="font-weight:800;margin-bottom:8px">Feedback geven aan deze young professional</div><input id="ofbName" placeholder="Naam" value="'+esc(me.name)+'" style="margin-bottom:8px"><div class="rate" style="font-size:22px;color:var(--amber);margin-bottom:8px">'+[1,2,3,4,5].map(n=>'<span data-act="rate" data-n="'+n+'">'+(n<=UI.curRate?"★":"☆")+'</span>').join("")+'</div><textarea id="ofbText" rows="3" placeholder="Ontwikkelfeedback voor deze young professional…"></textarea><div style="margin-top:8px"><button class="btn" data-act="submitOverall" data-tid="'+esc(tid)+'">Feedback plaatsen</button></div><div class="muted" style="font-size:11px;margin-top:6px">Zichtbaar voor de young professional (op het dashboard) en voor managers.</div></div>';
+}
+
+/* ---------- Manager: beheer (toegang / gebruikers) ---------- */
+function viewAdmin(){
+ const users=(S.access||[]).slice().sort((a,b)=>((a.name||a.email)||"").localeCompare((b.name||b.email)||""));
+ const graph=Store.mode==="graph";
+ let h='<div class="card" style="padding:16px 18px;margin-top:18px"><h2 style="font-size:18px">Beheer — toegang tot het portaal</h2>'
+  +'<div class="muted" style="margin-top:4px">Voeg hier de managers en medewerkers toe die toegang krijgen. Zij loggen daarna in met hun eigen Zig-account (SSO). Wie niet in de lijst staat, krijgt een &bdquo;Geen toegang&rdquo;-scherm.</div>'
+  +(graph?'':'<div class="hint" style="margin-top:12px">De app draait nu zonder gedeelde opslag (demo). Wijzigingen gelden alleen in deze browser. Zodra IT SharePoint koppelt (lijst <b>'+esc(CONFIG.sharepoint.accessList)+'</b>), geldt de lijst automatisch voor iedereen.</div>')
+  +'</div>';
+ h+='<div class="card" style="padding:16px 18px;margin-top:12px"><div style="font-weight:800;margin-bottom:10px">Nieuwe gebruiker toevoegen</div>'
+  +'<div class="admgrid">'
+  +'<input id="auName" placeholder="Naam">'
+  +'<input id="auEmail" type="email" placeholder="e-mail@zig.nl">'
+  +'<select id="auRole"><option value="trainee">Young Professional</option><option value="trainer">Trainer</option><option value="manager">Manager</option></select>'
+  +'<button class="btn" data-act="addUser">Toevoegen</button>'
+  +'</div>'
+  +'<div class="muted" style="font-size:11.5px;margin-top:8px">Rol bepaalt de weergave: een <b>young professional</b> ziet de eigen voortgang en feedback; een <b>trainer</b> ziet het programma, verifieert aanwezigheid en geeft feedback; een <b>manager</b> ziet alles en beheert de toegang.</div></div>';
+ // --- Bestaande gebruikers beheren ---
+ const cnt={manager:0,trainer:0,trainee:0};
+ users.forEach(u=>{const r=String(u.role).toLowerCase();if(cnt[r]!=null)cnt[r]++;});
+ const q=(UI.admQ||"").trim().toLowerCase();
+ const shown=users.filter(u=>{
+   if(UI.admRole!=="all"&&String(u.role).toLowerCase()!==UI.admRole)return false;
+   if(!q)return true;
+   return ((u.name||"")+" "+(u.email||"")).toLowerCase().indexOf(q)>=0;
+ });
+ h+='<div class="card" style="padding:16px 18px;margin-top:12px">'
+  +'<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px">'
+  +'<div style="font-weight:800">Gebruikers beheren</div>'
+  +'<span class="muted" style="font-size:12px">'+users.length+' totaal · '+cnt.manager+' manager'+(cnt.manager===1?'':'s')+' · '+cnt.trainer+' trainer'+(cnt.trainer===1?'':'s')+' · '+cnt.trainee+' young professional'+(cnt.trainee===1?'':'s')+'</span></div>'
+  +'<div class="muted" style="font-size:12.5px;margin-bottom:10px">Pas hier de naam of rol van een bestaande gebruiker aan, of verwijder iemand uit de app. Wie je verwijdert, verliest direct toegang en krijgt bij een volgende aanmelding het &bdquo;Geen toegang&rdquo;-scherm.</div>'
+  +'<div class="admfilter">'
+  +'<input id="admQ" data-act="admSearch" placeholder="Zoek op naam of e-mail" value="'+esc(UI.admQ||"")+'">'
+  +'<select data-act="admRole">'
+   +'<option value="all"'+(UI.admRole==="all"?' selected':'')+'>Alle rollen</option>'
+   +'<option value="trainee"'+(UI.admRole==="trainee"?' selected':'')+'>Young Professionals</option>'
+   +'<option value="trainer"'+(UI.admRole==="trainer"?' selected':'')+'>Trainers</option>'
+   +'<option value="manager"'+(UI.admRole==="manager"?' selected':'')+'>Managers</option>'
+  +'</select></div>';
+ if(!users.length)h+='<div class="muted" style="font-size:13px;padding:6px 0">Nog geen gebruikers toegevoegd. De vaste beheerders houden sowieso toegang.</div>';
+ else if(!shown.length)h+='<div class="empty">Geen gebruikers gevonden met deze zoekopdracht.</div>';
+ else h+=shown.map(u=>{
+   const nm=u.name||u.email;const rl=String(u.role).toLowerCase();const uid=esc(u.id||"");
+   const editing=UI.admEdit&&(UI.admEdit===(u.id||u.email));
+   const tg=rl==="manager"?'<span class="tag mgr">Manager</span>':rl==="trainer"?'<span class="tag stk">Trainer</span>':'<span class="tag tr">Young Professional</span>';
+   const self=me&&me.email&&(u.email||"").toLowerCase()===String(me.email).toLowerCase();
+   if(editing){
+     return '<div style="border:1px solid var(--blue);border-radius:12px;margin-bottom:8px;padding:11px 12px">'
+      +'<div class="muted" style="font-size:11.5px;margin-bottom:7px">Bewerken — '+esc(u.email)+'</div>'
+      +'<div class="admgrid">'
+      +'<input id="edName" value="'+esc(nm)+'" placeholder="Naam">'
+      +'<select id="edRole">'
+        +'<option value="trainee"'+(rl==="trainee"?' selected':'')+'>Young Professional</option>'
+        +'<option value="trainer"'+(rl==="trainer"?' selected':'')+'>Trainer</option>'
+        +'<option value="manager"'+(rl==="manager"?' selected':'')+'>Manager</option>'
+      +'</select>'
+      +'<button class="btn sm" data-act="saveUser" data-uid="'+uid+'" data-uemail="'+esc(u.email)+'">Opslaan</button>'
+      +'<button class="btn ghost sm" data-act="cancelEditUser">Annuleren</button>'
+      +'</div></div>';
+   }
+   return '<div class="sh" style="border:1px solid var(--border);border-radius:12px;margin-bottom:8px;padding:9px 12px"><div class="avatar" style="background:'+colorFor(nm)+'">'+initials(nm)+'</div>'
+    +'<div style="flex:1;min-width:0"><div style="font-weight:700">'+esc(nm)+(self?' <span class="muted" style="font-weight:600;font-size:11px">(jij)</span>':'')+'</div><div class="muted" style="font-size:12px">'+esc(u.email)+'</div></div>'
+    +tg
+    +'<button class="btn ghost sm" style="margin-inline-start:8px" data-act="editUser" data-uid="'+uid+'" data-uemail="'+esc(u.email)+'">Bewerken</button>'
+    +'<button class="btn ghost sm" style="margin-inline-start:6px" data-act="delUser" data-uid="'+uid+'" data-uemail="'+esc(u.email)+'">Verwijderen</button></div>';
+ }).join("");
+ h+='</div>';
+ h+='<div class="hint" style="margin-top:12px"><b>Samen met SSO:</b> deze lijst bepaalt wie ná het inloggen toegang krijgt. Voor een harde grens kan IT in Entra daarnaast &bdquo;Toewijzing vereist&rdquo; aanzetten. Combineer beide voor de strengste beveiliging.</div>';
+ // --- Jaarplanning aanpassen ---
+ h+='<div class="card" style="padding:16px 18px;margin-top:12px"><div style="font-weight:800;margin-bottom:6px">Jaarplanning aanpassen</div>'
+  +'<div class="muted" style="font-size:12.5px;margin-bottom:10px">Exporteer de huidige planning, pas de activiteiten aan in Excel en lees het bestand weer in. Alleen sessies op datums die <b>nog niet hebben plaatsgevonden</b> worden overschreven; reeds plaatsgevonden sessies blijven ongewijzigd — inclusief status, aanwezigheid, locatie en feedback.</div>'
+  +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">'
+  +'<button class="btn ghost sm" data-act="exportPlanning">⬇ Huidige planning (Excel)</button>'
+  +'<label class="btn sm" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px">⬆ Nieuwe planning inlezen<input type="file" accept=".xlsx,.csv" style="display:none" data-act="importPlanning"></label>'
+  +'</div>'
+  +'<div class="muted" style="font-size:11px;margin-top:8px">Behoud de kolomvolgorde uit het sjabloon (Week, Datum, Maand, Fase, Ma–Vr). Een lege cel of &bdquo;n.v.t.&rdquo; betekent geen sessie. Ook .csv wordt ondersteund.</div></div>';
+ return h;
+}
+async function addUser(){
+ const name=(document.getElementById("auName").value||"").trim();
+ const email=(document.getElementById("auEmail").value||"").trim().toLowerCase();
+ const role=document.getElementById("auRole").value||"trainee";
+ if(!email||email.indexOf("@")<1){document.getElementById("auEmail").focus();toast("Vul een geldig e-mailadres in");return;}
+ if(accessUser(email)){toast("Deze gebruiker staat al in de lijst");return;}
+ await Store.addAccessUser({name:name||email,email,role});
+ toast("Gebruiker toegevoegd");render();
+}
+function findAccess(uid,email){
+ return (S.access||[]).find(x=>(uid&&x.id===uid)||(email&&(x.email||"").toLowerCase()===(email||"").toLowerCase()))||null;
+}
+function editUser(uid,email){const u=findAccess(uid,email);if(!u)return;UI.admEdit=u.id||u.email;render();}
+function cancelEditUser(){UI.admEdit=null;render();}
+async function saveUser(uid,email){
+ const u=findAccess(uid,email);if(!u)return;
+ const nEl=document.getElementById("edName"),rEl=document.getElementById("edRole");
+ const name=(nEl&&nEl.value||"").trim()||u.email;
+ const role=(rEl&&rEl.value)||u.role;
+ const selfDemote=me&&me.email&&(u.email||"").toLowerCase()===String(me.email).toLowerCase()&&role!=="manager";
+ if(selfDemote&&!confirm("Je haalt hiermee je eigen managerrechten weg. Je verliest dan de toegang tot het tabblad Beheer.\n\nWeet je het zeker?"))return;
+ await Store.updateAccessUser(u,{name,role});
+ UI.admEdit=null;toast("Wijzigingen opgeslagen");
+ if(selfDemote){await boot();return;}
+ render();
+}
+async function delUser(uid,email){
+ const u=findAccess(uid,email);
+ if(!u)return;
+ const nm=u.name||u.email;
+ if(!confirm("Weet je zeker dat je "+nm+" ("+u.email+") uit de app wilt verwijderen?\n\nDeze persoon verliest direct de toegang. Voortgang en feedback blijven bewaard.")) return;
+ const self=me&&me.email&&(u.email||"").toLowerCase()===String(me.email).toLowerCase();
+ await Store.delAccessUser(u);
+ UI.admEdit=null;toast("Gebruiker verwijderd");
+ if(self){await boot();return;}
+ render();
+}
+
+/* ================= Event-delegation ================= */
+document.addEventListener("click",function(e){
+ const t=e.target.closest("[data-act]");if(!t)return;const a=t.dataset.act,d=t.dataset;
+ switch(a){
+  case "login": Auth.login(); break;
+  case "logout": Auth.logout(); break;
+  case "demo": DEMO.current=d.who; boot(); break;
+  case "tab": setTab(d.tab); break;
+  case "phase": UI.phase=(UI.phase===d.p?"all":d.p); render(); break;
+  case "jumpNow": jumpNow(); break;
+  case "openDay": openDay(+d.i,+d.day); break;
+  case "openTrainee": openTrainee(d.tid); break;
+  case "openTraineeDay": UI.viewTrainee=d.tid; UI.tab="trainee"; openDay(+d.i,+d.day); break;
+  case "backDash": backDash(); break;
+  case "closeDrawer": closeDrawer(); break;
+  case "setStatus": setStatus(+d.i,+d.day,d.v); break;
+  case "setAtt": setAtt(+d.i,+d.day,d.v); break;
+  case "addCal": addToCalendar(+d.i,+d.day); break;
+  case "syncWeek": e.stopPropagation(); syncWeek(+d.i); break;
+  case "exportAll": exportIcsAll(); break;
+  case "rate": setRate(+d.n); break;
+  case "submitFb": submitFb(+d.i,+d.day); break;
+  case "delFb": delFb(d.fid); break;
+  case "exportFb": exportFeedbackCsv(UI.fbTrainee==="all"?null:S.feedback.filter(f=>f.tid===UI.fbTrainee)); break;
+  case "addUser": addUser(); break;
+  case "delUser": delUser(d.uid,d.uemail); break;
+  case "editUser": editUser(d.uid,d.uemail); break;
+  case "saveUser": saveUser(d.uid,d.uemail); break;
+  case "cancelEditUser": cancelEditUser(); break;
+  case "verifyAtt": verifyAtt(d.tid,+d.i,+d.day,d.v); break;
+  case "submitOverall": submitOverall(d.tid); break;
+  case "setLoc": setLoc(+d.i,+d.day,d.v); break;
+  case "exportPlanning": exportPlanning(); break;
+ }
+});
+document.addEventListener("change",function(e){
+ const t=e.target.closest("[data-act]");if(!t)return;const a=t.dataset.act;
+ if(a==="phaseSel"){UI.phase=t.value;render();}
+ else if(a==="fbTrainee"){UI.fbTrainee=t.value;render();}
+ else if(a==="assignTrainer"){setAssign(+t.dataset.i,+t.dataset.day,t.value);}
+ else if(a==="importPlanning"){const f=t.files&&t.files[0];if(f)importPlanning(f);t.value="";}
+ else if(a==="admRole"){UI.admRole=t.value;UI.admEdit=null;render();}
+});
+document.addEventListener("input",function(e){
+ const t=e.target.closest("[data-act]");if(!t)return;
+ if(t.dataset.act==="search"){UI.q=t.value;const staff=me.role!=="trainee";const wl=document.getElementById("wlist");if(wl)wl.innerHTML=weekListHtml(staff?(UI.viewTrainee||null):me.id, staff&&!UI.viewTrainee);}
+ else if(t.dataset.act==="admSearch"){UI.admQ=t.value;UI.admEdit=null;render();const el=document.getElementById("admQ");if(el){el.focus();el.setSelectionRange(el.value.length,el.value.length);}}
+});
+
+/* ================= Boot ================= */
+function seedInit(){
+ S=clone(SEED);
+ S.trainees=clone(SEED.demo.trainees);
+ S.progress=clone(SEED.demo.progress);
+ S.feedback=clone(SEED.demo.feedback);
+ // demo: enkele voorbeelden van feedback ván manager/trainer aan trainees
+ S.feedback.push({id:"dm0",tid:"t-a",wi:-1,day:-1,a:"Jarno Cislo",r:"Manager",dt:"2025-12-08",rt:4,c:"Mooie ontwikkeling dit kwartaal. Blijf initiatief tonen richting de klant."});
+ S.feedback.push({id:"dm1",tid:"t-a",wi:3,day:3,a:"Peter Smit",r:"Trainer",dt:"2025-12-04",rt:4,c:"Goede inbreng tijdens de sessie; aanwezigheid bevestigd."});
+ S.feedback.push({id:"dm2",tid:"t-c",wi:-1,day:-1,a:"Jarno Cislo",r:"Manager",dt:"2025-11-20",rt:5,c:"Sterke voortgang, neemt duidelijk eigenaarschap."});
+ S.access=clone(SEED.access||[]);
+ // demo: beschikbare trainer + enkele sessies aan die trainer toegewezen (om scoping te tonen)
+ S.trainers=[{email:"peter.smit@zig.nl",name:"Peter Smit"}];
+ S.assign={"1_4":{email:"peter.smit@zig.nl",name:"Peter Smit"},"2_3":{email:"peter.smit@zig.nl",name:"Peter Smit"},"3_0":{email:"peter.smit@zig.nl",name:"Peter Smit"},"3_3":{email:"peter.smit@zig.nl",name:"Peter Smit"},"7_3":{email:"peter.smit@zig.nl",name:"Peter Smit"}};
+ // demo: enkele sessies op 'remote' om het locatie-overzicht te tonen (rest is standaard 'op locatie')
+ [["t-a","6_4"],["t-a","7_2"],["t-c","9_2"],["t-c","10_1"]].forEach(function(x){if(S.progress[x[0]]&&S.progress[x[0]][x[1]])S.progress[x[0]][x[1]].loc="remote";});
+ delete S.demo;
+}
+function ensureTrainee(){
+ if(me.role!=="trainee")return;
+ if(!trainee(me.id))S.trainees.push({id:me.id,name:me.name,email:me.email});
+ if(!S.progress[me.id])S.progress[me.id]={};
+}
+let _authInit=false;
+async function boot(){
+ if(!S)seedInit();
+ if(!_authInit){await Auth.init();_authInit=true;}
+ if(!Auth.signedIn()){render();return;}
+ me = Auth.mode==="msal" ? (function(){const p=Auth.profile();return {id:p.email,name:p.name,email:p.email,_roles:p.roles};})() : DEMO.resolve();
+ if(!me){render();return;}
+ await Store.init();
+ await Store.loadAccess();                    // beheerlijst (selecte groep) laden vóór de toegangscheck
+ if(Auth.mode==="msal"){
+   const c=classify(me.email,me._roles);
+   me.role=c.role;me.allowed=c.allowed;
+   if(me.allowed===false){render();return;}   // aangemeld, maar niet in de selecte groep → toegangsscherm
+ }
+ await Store.loadAll();
+ await Store.loadAssign();
+ await Store.loadPlanning();
+ ensureTrainee();
+ UI.tab=defaultTab();UI.viewTrainee=null;UI.open=null;UI.q="";UI.phase="all";UI.fbTrainee="all";
+ render();
+}
+boot();
+</script></body></html>
